@@ -1,11 +1,7 @@
 # Backend
-backend/target/
 backend/build/
 backend/*.jar
-backend/.mvn/
 backend/.gradle/
-backend/mvnw
-backend/mvnw.cmd
 backend/gradlew
 backend/gradlew.bat
 backend/gradle/
