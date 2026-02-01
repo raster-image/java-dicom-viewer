@@ -132,6 +132,7 @@ docker-compose up -d
 
 - [Architecture Overview](docs/ARCHITECTURE.md) - Technical architecture and design decisions
 - [Implementation Roadmap](docs/ROADMAP.md) - Phased development plan (7 phases)
+- [Phase 1 Implementation Guide](docs/PHASE1_IMPLEMENTATION.md) - Detailed Phase 1 specs with code examples
 - [Module Specifications](docs/MODULE_SPECIFICATIONS.md) - Detailed viewer module specifications
 - [API Documentation](docs/API.md) - REST API reference
 
