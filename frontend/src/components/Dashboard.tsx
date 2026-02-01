@@ -1,11 +1,11 @@
-import { useQuery } from '@tanstack/react-query'
-import { apiClient } from '../services/api'
+import { useQuery } from '@tanstack/react-query';
+import { apiClient } from '../services/api';
 
 export default function Dashboard() {
   const { data: health } = useQuery({
     queryKey: ['health'],
     queryFn: () => apiClient.getHealth(),
-  })
+  });
 
   return (
     <div className="p-6">
@@ -66,8 +66,8 @@ export default function Dashboard() {
         <h2 className="text-lg font-semibold text-white mb-4">Getting Started</h2>
         <div className="text-gray-300 space-y-4">
           <p>
-            Welcome to the DICOM Viewer application. This application supports both modern 
-            DICOMweb PACS systems and legacy PACS systems using traditional DICOM protocols.
+            Welcome to the DICOM Viewer application. This application supports both modern DICOMweb
+            PACS systems and legacy PACS systems using traditional DICOM protocols.
           </p>
           <ol className="list-decimal list-inside space-y-2">
             <li>Configure your PACS connections in the Settings page</li>
@@ -78,5 +78,5 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
-  )
+  );
 }

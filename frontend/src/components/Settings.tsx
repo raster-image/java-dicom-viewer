@@ -1,56 +1,60 @@
-import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { apiClient } from '../services/api'
-import type { PacsConfiguration } from '../types'
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiClient } from '../services/api';
+import type { PacsConfiguration } from '../types';
 
 export default function Settings() {
-  const queryClient = useQueryClient()
-  const [editingPacs, setEditingPacs] = useState<PacsConfiguration | null>(null)
-  const [testingPacs, setTestingPacs] = useState<string | null>(null)
-  const [testResult, setTestResult] = useState<{ id: string; success: boolean; message: string } | null>(null)
+  const queryClient = useQueryClient();
+  const [editingPacs, setEditingPacs] = useState<PacsConfiguration | null>(null);
+  const [testingPacs, setTestingPacs] = useState<string | null>(null);
+  const [testResult, setTestResult] = useState<{
+    id: string;
+    success: boolean;
+    message: string;
+  } | null>(null);
 
   // Fetch PACS configurations
   const { data: pacsData, isLoading } = useQuery({
     queryKey: ['pacs'],
     queryFn: () => apiClient.getPacsConfigurations(),
-  })
+  });
 
   // Create/Update mutation
   const saveMutation = useMutation({
     mutationFn: (pacs: PacsConfiguration) =>
       pacs.id ? apiClient.updatePacs(pacs.id, pacs) : apiClient.createPacs(pacs),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pacs'] })
-      setEditingPacs(null)
+      queryClient.invalidateQueries({ queryKey: ['pacs'] });
+      setEditingPacs(null);
     },
-  })
+  });
 
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiClient.deletePacs(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['pacs'] })
+      queryClient.invalidateQueries({ queryKey: ['pacs'] });
     },
-  })
+  });
 
   // Test connection
   const testConnection = async (id: string) => {
-    setTestingPacs(id)
-    setTestResult(null)
+    setTestingPacs(id);
+    setTestResult(null);
     try {
-      const result = await apiClient.testPacsConnection(id)
-      setTestResult({ id, ...result })
+      const result = await apiClient.testPacsConnection(id);
+      setTestResult({ id, ...result });
     } catch (error) {
-      setTestResult({ id, success: false, message: 'Test failed' })
+      setTestResult({ id, success: false, message: 'Test failed' });
     }
-    setTestingPacs(null)
-  }
+    setTestingPacs(null);
+  };
 
   const handleSave = () => {
     if (editingPacs) {
-      saveMutation.mutate(editingPacs)
+      saveMutation.mutate(editingPacs);
     }
-  }
+  };
 
   const handleAddNew = () => {
     setEditingPacs({
@@ -64,8 +68,8 @@ export default function Settings() {
       qidoRsUrl: '',
       stowRsUrl: '',
       isActive: true,
-    })
-  }
+    });
+  };
 
   return (
     <div className="p-6">
@@ -169,7 +173,9 @@ export default function Settings() {
                     type="number"
                     className="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600"
                     value={editingPacs.port}
-                    onChange={(e) => setEditingPacs({ ...editingPacs, port: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setEditingPacs({ ...editingPacs, port: parseInt(e.target.value) })
+                    }
                   />
                 </div>
               </div>
@@ -189,7 +195,12 @@ export default function Settings() {
                   <select
                     className="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600"
                     value={editingPacs.pacsType}
-                    onChange={(e) => setEditingPacs({ ...editingPacs, pacsType: e.target.value as 'LEGACY' | 'DICOMWEB' })}
+                    onChange={(e) =>
+                      setEditingPacs({
+                        ...editingPacs,
+                        pacsType: e.target.value as 'LEGACY' | 'DICOMWEB',
+                      })
+                    }
                   >
                     <option value="LEGACY">Legacy (C-FIND/C-MOVE)</option>
                     <option value="DICOMWEB">DICOMweb (WADO-RS/QIDO-RS)</option>
@@ -205,7 +216,9 @@ export default function Settings() {
                       type="text"
                       className="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600"
                       value={editingPacs.wadoRsUrl}
-                      onChange={(e) => setEditingPacs({ ...editingPacs, wadoRsUrl: e.target.value })}
+                      onChange={(e) =>
+                        setEditingPacs({ ...editingPacs, wadoRsUrl: e.target.value })
+                      }
                       placeholder="https://pacs.example.com/wado-rs"
                     />
                   </div>
@@ -215,7 +228,9 @@ export default function Settings() {
                       type="text"
                       className="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600"
                       value={editingPacs.qidoRsUrl}
-                      onChange={(e) => setEditingPacs({ ...editingPacs, qidoRsUrl: e.target.value })}
+                      onChange={(e) =>
+                        setEditingPacs({ ...editingPacs, qidoRsUrl: e.target.value })
+                      }
                       placeholder="https://pacs.example.com/qido-rs"
                     />
                   </div>
@@ -225,7 +240,9 @@ export default function Settings() {
                       type="text"
                       className="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600"
                       value={editingPacs.stowRsUrl}
-                      onChange={(e) => setEditingPacs({ ...editingPacs, stowRsUrl: e.target.value })}
+                      onChange={(e) =>
+                        setEditingPacs({ ...editingPacs, stowRsUrl: e.target.value })
+                      }
                       placeholder="https://pacs.example.com/stow-rs"
                     />
                   </div>
@@ -251,5 +268,5 @@ export default function Settings() {
         </div>
       )}
     </div>
-  )
+  );
 }

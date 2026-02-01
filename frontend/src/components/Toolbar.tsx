@@ -1,11 +1,11 @@
-import React from 'react'
+import React from 'react';
 
-export type ViewerTool = 'WindowLevel' | 'Pan' | 'Zoom' | 'StackScroll'
+export type ViewerTool = 'WindowLevel' | 'Pan' | 'Zoom' | 'StackScroll';
 
 export interface WindowLevelPreset {
-  name: string
-  windowWidth: number
-  windowCenter: number
+  name: string;
+  windowWidth: number;
+  windowCenter: number;
 }
 
 export const WINDOW_LEVEL_PRESETS: Record<string, WindowLevelPreset> = {
@@ -17,56 +17,56 @@ export const WINDOW_LEVEL_PRESETS: Record<string, WindowLevelPreset> = {
   'mr-t1': { name: 'MR T1', windowWidth: 500, windowCenter: 250 },
   'mr-t2': { name: 'MR T2', windowWidth: 400, windowCenter: 200 },
   'mr-flair': { name: 'MR FLAIR', windowWidth: 1200, windowCenter: 600 },
-}
+};
 
 interface ToolbarProps {
-  activeTool: ViewerTool
-  onToolChange: (tool: ViewerTool) => void
-  currentImage: number // 1-based display index
-  totalImages: number
-  onNavigate: (index: number) => void // Expects 0-based index
-  onReset: () => void
-  onPresetChange?: (preset: WindowLevelPreset) => void
+  activeTool: ViewerTool;
+  onToolChange: (tool: ViewerTool) => void;
+  currentImage: number; // 1-based display index
+  totalImages: number;
+  onNavigate: (index: number) => void; // Expects 0-based index
+  onReset: () => void;
+  onPresetChange?: (preset: WindowLevelPreset) => void;
 }
 
 interface ToolButton {
-  id: ViewerTool
-  label: string
-  icon: string
-  shortcut: string
-  description: string
+  id: ViewerTool;
+  label: string;
+  icon: string;
+  shortcut: string;
+  description: string;
 }
 
 const TOOLS: ToolButton[] = [
-  { 
-    id: 'WindowLevel', 
-    label: 'W/L', 
-    icon: '◐', 
+  {
+    id: 'WindowLevel',
+    label: 'W/L',
+    icon: '◐',
     shortcut: 'W',
-    description: 'Adjust window/level (brightness/contrast)'
+    description: 'Adjust window/level (brightness/contrast)',
   },
-  { 
-    id: 'Pan', 
-    label: 'Pan', 
-    icon: '✥', 
+  {
+    id: 'Pan',
+    label: 'Pan',
+    icon: '✥',
     shortcut: 'P',
-    description: 'Pan the image'
+    description: 'Pan the image',
   },
-  { 
-    id: 'Zoom', 
-    label: 'Zoom', 
-    icon: '🔍', 
+  {
+    id: 'Zoom',
+    label: 'Zoom',
+    icon: '🔍',
     shortcut: 'Z',
-    description: 'Zoom in/out'
+    description: 'Zoom in/out',
   },
-  { 
-    id: 'StackScroll', 
-    label: 'Scroll', 
-    icon: '↕', 
+  {
+    id: 'StackScroll',
+    label: 'Scroll',
+    icon: '↕',
     shortcut: 'S',
-    description: 'Scroll through images'
+    description: 'Scroll through images',
   },
-]
+];
 
 export const Toolbar: React.FC<ToolbarProps> = ({
   activeTool,
@@ -78,12 +78,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onPresetChange,
 }) => {
   const handlePresetChange = (presetKey: string) => {
-    const preset = WINDOW_LEVEL_PRESETS[presetKey]
+    const preset = WINDOW_LEVEL_PRESETS[presetKey];
     if (preset && onPresetChange) {
-      onPresetChange(preset)
+      onPresetChange(preset);
     }
-  }
-  
+  };
+
   return (
     <div className="flex items-center justify-between p-2 bg-gray-800 border-b border-gray-700">
       {/* Tool buttons */}
@@ -94,9 +94,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             onClick={() => onToolChange(tool.id)}
             className={`
               px-3 py-2 rounded text-sm font-medium transition-colors
-              ${activeTool === tool.id
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              ${
+                activeTool === tool.id
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
               }
             `}
             title={`${tool.description} (${tool.shortcut})`}
@@ -105,7 +106,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             {tool.label}
           </button>
         ))}
-        
+
         {/* Reset button */}
         <button
           onClick={onReset}
@@ -145,7 +146,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           className="px-2 py-1 bg-gray-700 text-white rounded text-sm border border-gray-600"
           onChange={(e) => {
             if (e.target.value) {
-              handlePresetChange(e.target.value)
+              handlePresetChange(e.target.value);
             }
           }}
           defaultValue=""
@@ -166,7 +167,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         </select>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Toolbar
+export default Toolbar;
