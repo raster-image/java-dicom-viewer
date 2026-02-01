@@ -5,9 +5,10 @@ import { apiClient } from '../services/api';
 import type { Annotation, AnnotationType, Point3D, AnnotationStyle } from '../types';
 
 // Map Cornerstone tool names to annotation types
-const TOOL_TYPE_MAP: Record<string, AnnotationType> = {
+// These are qualitative annotation tools used for marking and labeling
+// Note: PlanarFreehandROI is used when the TextMarker toolbar option is selected
+const ANNOTATION_TOOL_MAP: Record<string, AnnotationType> = {
   ArrowAnnotate: 'ARROW',
-  TextMarker: 'TEXT',
   PlanarFreehandROI: 'POLYLINE',
 };
 
@@ -105,7 +106,7 @@ export function useAnnotationPersistence({
 
       // Skip if already saved or not an annotation tool
       if (!annotationUID || savedAnnotations.current.has(annotationUID)) return;
-      if (!toolName || !TOOL_TYPE_MAP[toolName]) return;
+      if (!toolName || !ANNOTATION_TOOL_MAP[toolName]) return;
 
       const data = annotationObj.data as Record<string, unknown>;
       if (!data) return;
@@ -120,7 +121,7 @@ export function useAnnotationPersistence({
           seriesInstanceUid,
           sopInstanceUid,
           frameIndex,
-          annotationType: TOOL_TYPE_MAP[toolName],
+          annotationType: ANNOTATION_TOOL_MAP[toolName],
           toolName,
           text,
           points,
@@ -163,7 +164,7 @@ export function useAnnotationPersistence({
       const toolName = metadata?.toolName as string;
 
       // Only process annotation tools, not measurement tools
-      if (!toolName || !TOOL_TYPE_MAP[toolName]) return;
+      if (!toolName || !ANNOTATION_TOOL_MAP[toolName]) return;
 
       // Extract SOP Instance UID from the referenced image ID
       const referencedImageId = metadata?.referencedImageId as string;

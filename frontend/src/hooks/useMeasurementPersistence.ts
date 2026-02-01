@@ -5,18 +5,19 @@ import { apiClient } from '../services/api';
 import type { Measurement, MeasurementType, Point3D, ROIStats } from '../types';
 
 // Map Cornerstone tool names to measurement types
-const TOOL_TYPE_MAP: Record<string, MeasurementType> = {
+// These are quantitative measurement tools that produce numerical results
+const MEASUREMENT_TOOL_MAP: Record<string, MeasurementType> = {
   Length: 'LENGTH',
   Angle: 'ANGLE',
   CobbAngle: 'COBB_ANGLE',
   RectangleROI: 'RECTANGLE_ROI',
   EllipticalROI: 'ELLIPSE_ROI',
-  PlanarFreehandROI: 'FREEHAND_ROI',
   Probe: 'PROBE',
 };
 
-// Annotation tools (excluded from measurement persistence)
-const ANNOTATION_TOOLS = ['ArrowAnnotate', 'TextMarker', 'PlanarFreehandROI'];
+// Annotation tools are handled by useAnnotationPersistence
+// Note: PlanarFreehandROI can be used for both freehand measurements and annotations
+// When used as TextMarker in the toolbar, it's treated as an annotation
 
 interface UseMeasurementPersistenceProps {
   studyInstanceUid: string;
@@ -105,9 +106,7 @@ export function useMeasurementPersistence({
 
       // Skip if already saved or not a measurement tool
       if (!annotationUID || savedAnnotations.current.has(annotationUID)) return;
-      if (!toolName || !TOOL_TYPE_MAP[toolName]) return;
-      // Skip annotation tools - they are handled by useAnnotationPersistence
-      if (ANNOTATION_TOOLS.includes(toolName)) return;
+      if (!toolName || !MEASUREMENT_TOOL_MAP[toolName]) return;
 
       const data = annotationObj.data as Record<string, unknown>;
       if (!data) return;
@@ -147,7 +146,7 @@ export function useMeasurementPersistence({
           seriesInstanceUid,
           sopInstanceUid,
           frameIndex,
-          measurementType: TOOL_TYPE_MAP[toolName],
+          measurementType: MEASUREMENT_TOOL_MAP[toolName],
           toolName,
           value,
           unit,

@@ -26,7 +26,7 @@ The viewer provides several measurement tools for clinical use. All measurements
 3. Click again to place the second point
 4. The distance will be displayed in millimeters (mm)
 
-**Accuracy**: ±1mm based on DICOM pixel spacing
+**Accuracy**: Measurement accuracy depends on the quality of DICOM pixel spacing metadata and image resolution. Typically ±1mm when proper calibration data is available in the DICOM headers.
 
 ### Angle Tool (∠)
 
