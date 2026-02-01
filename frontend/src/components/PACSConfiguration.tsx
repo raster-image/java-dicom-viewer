@@ -144,7 +144,9 @@ export const PACSConfiguration: React.FC<PACSConfigurationProps> = ({ onClose })
       {error && (
         <div className="p-4 bg-red-100 text-red-700">
           {error}
-          <button onClick={() => setError(null)} className="ml-2 text-red-900">✕</button>
+          <button onClick={() => setError(null)} className="ml-2 text-red-900">
+            ✕
+          </button>
         </div>
       )}
 
@@ -173,24 +175,28 @@ export const PACSConfiguration: React.FC<PACSConfigurationProps> = ({ onClose })
                       </span>
                     )}
                   </div>
-                  {ae.description && (
-                    <div className="text-sm text-gray-500">{ae.description}</div>
-                  )}
+                  {ae.description && <div className="text-sm text-gray-500">{ae.description}</div>}
                 </td>
                 <td className="px-4 py-3 text-sm">{ae.hostname}</td>
                 <td className="px-4 py-3 text-sm">{ae.port}</td>
                 <td className="px-4 py-3">
-                  <span className={`px-2 py-1 text-xs rounded ${
-                    ae.aeType === 'LOCAL' ? 'bg-purple-100 text-purple-700' :
-                    ae.aeType === 'REMOTE_LEGACY' ? 'bg-orange-100 text-orange-700' :
-                    'bg-green-100 text-green-700'
-                  }`}>
+                  <span
+                    className={`px-2 py-1 text-xs rounded ${
+                      ae.aeType === 'LOCAL'
+                        ? 'bg-purple-100 text-purple-700'
+                        : ae.aeType === 'REMOTE_LEGACY'
+                          ? 'bg-orange-100 text-orange-700'
+                          : 'bg-green-100 text-green-700'
+                    }`}
+                  >
                     {ae.aeType}
                   </span>
                 </td>
                 <td className="px-4 py-3">
                   {ae.aeType !== 'LOCAL' && (
-                    <span className={`inline-flex items-center px-2 py-1 text-xs rounded ${getStatusColor(ae.lastEchoStatus)}`}>
+                    <span
+                      className={`inline-flex items-center px-2 py-1 text-xs rounded ${getStatusColor(ae.lastEchoStatus)}`}
+                    >
                       <span className="mr-1">{getStatusIcon(ae.lastEchoStatus)}</span>
                       {ae.lastEchoStatus || 'Unknown'}
                     </span>
@@ -282,7 +288,7 @@ const AEFormModal: React.FC<AEFormModalProps> = ({ ae, onSave, onCancel, isLoadi
   };
 
   const updateField = <K extends keyof AERequest>(field: K, value: AERequest[K]) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -297,9 +303,7 @@ const AEFormModal: React.FC<AEFormModalProps> = ({ ae, onSave, onCancel, isLoadi
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* AE Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              AE Title *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">AE Title *</label>
             <input
               type="text"
               required
@@ -313,9 +317,7 @@ const AEFormModal: React.FC<AEFormModalProps> = ({ ae, onSave, onCancel, isLoadi
 
           {/* Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Type *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Type *</label>
             <select
               value={formData.aeType}
               onChange={(e) => updateField('aeType', e.target.value as AEType)}
@@ -330,9 +332,7 @@ const AEFormModal: React.FC<AEFormModalProps> = ({ ae, onSave, onCancel, isLoadi
 
           {/* Hostname */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Hostname *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Hostname *</label>
             <input
               type="text"
               required
@@ -345,9 +345,7 @@ const AEFormModal: React.FC<AEFormModalProps> = ({ ae, onSave, onCancel, isLoadi
 
           {/* Port */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Port *
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Port *</label>
             <input
               type="number"
               required
@@ -362,9 +360,7 @@ const AEFormModal: React.FC<AEFormModalProps> = ({ ae, onSave, onCancel, isLoadi
           {/* DICOMweb URL (only for DICOMweb type) */}
           {formData.aeType === 'REMOTE_DICOMWEB' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                DICOMweb URL
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">DICOMweb URL</label>
               <input
                 type="url"
                 value={formData.dicomWebUrl}
@@ -377,9 +373,7 @@ const AEFormModal: React.FC<AEFormModalProps> = ({ ae, onSave, onCancel, isLoadi
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <input
               type="text"
               value={formData.description}
@@ -397,9 +391,7 @@ const AEFormModal: React.FC<AEFormModalProps> = ({ ae, onSave, onCancel, isLoadi
             <div className="mt-3 space-y-3">
               {/* Connection Timeout */}
               <div>
-                <label className="block text-sm text-gray-600 mb-1">
-                  Connection Timeout (ms)
-                </label>
+                <label className="block text-sm text-gray-600 mb-1">Connection Timeout (ms)</label>
                 <input
                   type="number"
                   min={1000}
@@ -411,9 +403,7 @@ const AEFormModal: React.FC<AEFormModalProps> = ({ ae, onSave, onCancel, isLoadi
 
               {/* Response Timeout */}
               <div>
-                <label className="block text-sm text-gray-600 mb-1">
-                  Response Timeout (ms)
-                </label>
+                <label className="block text-sm text-gray-600 mb-1">Response Timeout (ms)</label>
                 <input
                   type="number"
                   min={1000}
@@ -425,9 +415,7 @@ const AEFormModal: React.FC<AEFormModalProps> = ({ ae, onSave, onCancel, isLoadi
 
               {/* Max Associations */}
               <div>
-                <label className="block text-sm text-gray-600 mb-1">
-                  Max Associations
-                </label>
+                <label className="block text-sm text-gray-600 mb-1">Max Associations</label>
                 <input
                   type="number"
                   min={1}

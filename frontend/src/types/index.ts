@@ -67,3 +67,121 @@ export interface MoveResult {
   warningSuboperations: number;
   errorMessage?: string;
 }
+
+// Phase 3: Measurement Types
+export type MeasurementType =
+  | 'LENGTH'
+  | 'ANGLE'
+  | 'COBB_ANGLE'
+  | 'RECTANGLE_ROI'
+  | 'ELLIPSE_ROI'
+  | 'POLYGON_ROI'
+  | 'FREEHAND_ROI'
+  | 'BIDIRECTIONAL'
+  | 'PROBE';
+
+export interface Point2D {
+  x: number;
+  y: number;
+}
+
+export interface Point3D extends Point2D {
+  z?: number;
+}
+
+export interface ROIStats {
+  mean: number;
+  stdDev: number;
+  min: number;
+  max: number;
+  area: number;
+  perimeter?: number;
+  pixelCount?: number;
+}
+
+export interface Measurement {
+  id: string;
+  studyInstanceUid: string;
+  seriesInstanceUid: string;
+  sopInstanceUid: string;
+  imageId?: string;
+  frameIndex?: number;
+  measurementType: MeasurementType;
+  toolName: string;
+  label?: string;
+  value?: number;
+  unit?: string;
+  points: Point3D[];
+  roiStats?: ROIStats;
+  color?: string;
+  visible: boolean;
+  createdBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// Phase 3: Annotation Types
+export type AnnotationType =
+  | 'TEXT'
+  | 'ARROW'
+  | 'MARKER'
+  | 'LINE'
+  | 'RECTANGLE'
+  | 'ELLIPSE'
+  | 'POLYLINE';
+
+export interface AnnotationStyle {
+  lineWidth?: number;
+  lineDash?: number[];
+  shadow?: boolean;
+  textBox?: {
+    background: boolean;
+    link: boolean;
+  };
+}
+
+export interface Annotation {
+  id: string;
+  studyInstanceUid: string;
+  seriesInstanceUid: string;
+  sopInstanceUid: string;
+  imageId?: string;
+  frameIndex?: number;
+  annotationType: AnnotationType;
+  toolName: string;
+  text?: string;
+  points: Point3D[];
+  style?: AnnotationStyle;
+  color?: string;
+  fontSize?: number;
+  visible: boolean;
+  locked: boolean;
+  createdBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// Phase 3: Key Image Types
+export interface KeyImage {
+  id: string;
+  studyInstanceUid: string;
+  seriesInstanceUid: string;
+  sopInstanceUid: string;
+  imageId?: string;
+  frameIndex?: number;
+  instanceNumber?: number;
+  description?: string;
+  category?: string;
+  windowWidth?: number;
+  windowCenter?: number;
+  thumbnailPath?: string;
+  createdBy?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface KeyImageToggleResult {
+  action: 'added' | 'removed';
+  isKeyImage: boolean;
+  keyImage?: KeyImage;
+}

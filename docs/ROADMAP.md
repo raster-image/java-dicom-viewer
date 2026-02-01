@@ -8,6 +8,8 @@ This document outlines the phased implementation plan for the Java DICOM Viewer 
 
 > **Phase 2 Details**: For comprehensive Phase 2 implementation guide with code examples, acceptance criteria, and testing strategies, see [PHASE2_IMPLEMENTATION.md](./PHASE2_IMPLEMENTATION.md)
 
+> **Phase 3 Details**: For comprehensive Phase 3 implementation guide with code examples, acceptance criteria, and testing strategies, see [PHASE3_IMPLEMENTATION.md](./PHASE3_IMPLEMENTATION.md)
+
 ## Overview
 
 | Phase | Name | Duration | Key Deliverables |
@@ -184,19 +186,19 @@ This document outlines the phased implementation plan for the Java DICOM Viewer 
 ### Week 11-12: Measurement Tools
 
 #### Linear Measurements
-- [ ] Distance measurement tool (two points)
-- [ ] Measurement value display with units
-- [ ] Measurement persistence to backend
+- [x] Distance measurement tool (two points)
+- [x] Measurement value display with units
+- [x] Measurement persistence to backend (API ready)
 - [ ] Measurement editing and deletion
 
 #### Angle Measurements
-- [ ] Cobb's angle tool (three points)
-- [ ] Standard angle measurement
-- [ ] Angle overlay display
+- [x] Cobb's angle tool (three points)
+- [x] Standard angle measurement
+- [x] Angle overlay display
 
 #### ROI Measurements
-- [ ] Rectangle ROI tool
-- [ ] Ellipse ROI tool
+- [x] Rectangle ROI tool
+- [x] Ellipse ROI tool
 - [ ] Polygon ROI tool (multi-point)
 - [ ] Freehand ROI tool
 - [ ] Statistics display (mean, std dev, min, max, area)
@@ -210,23 +212,23 @@ This document outlines the phased implementation plan for the Java DICOM Viewer 
 - [ ] Text positioning and editing
 
 #### Graphical Annotations
-- [ ] Arrow annotation tool
+- [x] Arrow annotation tool
 - [ ] Line annotation tool
-- [ ] Marker/point annotation
+- [x] Marker/point annotation (Probe tool)
 - [ ] Shape annotations (rectangle, ellipse)
 
 #### Annotation Management
-- [ ] Save annotations to backend
-- [ ] Load annotations for study
-- [ ] Annotation visibility toggle
+- [x] Save annotations to backend (API ready)
+- [x] Load annotations for study (API ready)
+- [x] Annotation visibility toggle
 - [ ] Annotation layer management
 
 ### Week 13-14: Key Image & Comparison
 
 #### Key Image Marking
-- [ ] Mark image as key image
-- [ ] Key image indicator display
-- [ ] Key image gallery view
+- [x] Mark image as key image
+- [x] Key image indicator display
+- [x] Key image gallery view
 - [ ] Key image export
 
 #### Study Comparison
@@ -257,11 +259,11 @@ This document outlines the phased implementation plan for the Java DICOM Viewer 
 - [ ] Scroll position synchronization
 
 ### Phase 3 Deliverables
-✅ Complete measurement toolkit
-✅ Annotation tools with persistence
-✅ Key image marking and gallery
-✅ Study comparison view
-✅ Basic orthogonal MPR
+✅ Complete measurement toolkit  
+✅ Annotation tools with persistence  
+✅ Key image marking and gallery  
+⏳ Study comparison view (pending)  
+⏳ Basic orthogonal MPR (pending)
 
 ---
 

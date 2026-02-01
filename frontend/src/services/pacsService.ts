@@ -1,9 +1,5 @@
 import { api } from './api';
-import type { 
-  ApplicationEntity, 
-  AERequest, 
-  ConnectionTestResult 
-} from '../types/pacs';
+import type { ApplicationEntity, AERequest, ConnectionTestResult } from '../types/pacs';
 
 export const pacsService = {
   /**
