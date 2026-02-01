@@ -4,6 +4,8 @@ This document outlines the phased implementation plan for the Java DICOM Viewer 
 
 > **Note**: For detailed module specifications, see [MODULE_SPECIFICATIONS.md](./MODULE_SPECIFICATIONS.md)
 
+> **Phase 1 Details**: For comprehensive Phase 1 implementation guide with code examples, acceptance criteria, and testing strategies, see [PHASE1_IMPLEMENTATION.md](./PHASE1_IMPLEMENTATION.md)
+
 ## Overview
 
 | Phase | Name | Duration | Key Deliverables |
