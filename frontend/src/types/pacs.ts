@@ -69,10 +69,10 @@ export interface RetrievalProgress {
   remaining: number;
 }
 
-export type RetrievalStatus = 
-  | 'PENDING' 
-  | 'IN_PROGRESS' 
-  | 'COMPLETED' 
-  | 'COMPLETED_WITH_ERRORS' 
-  | 'FAILED' 
+export type RetrievalStatus =
+  | 'PENDING'
+  | 'IN_PROGRESS'
+  | 'COMPLETED'
+  | 'COMPLETED_WITH_ERRORS'
+  | 'FAILED'
   | 'CANCELLED';

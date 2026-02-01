@@ -6,10 +6,22 @@ import cornerstoneDICOMImageLoader from '@cornerstonejs/dicom-image-loader';
 import dicomParser from 'dicom-parser';
 
 const {
+  // Navigation tools
   WindowLevelTool,
   PanTool,
   ZoomTool,
   StackScrollTool,
+  // Phase 3: Measurement tools
+  LengthTool,
+  AngleTool,
+  CobbAngleTool,
+  RectangleROITool,
+  EllipticalROITool,
+  ProbeTool,
+  // Phase 3: Annotation tools
+  ArrowAnnotateTool,
+  PlanarFreehandROITool,
+  // Tool management
   ToolGroupManager,
   Enums: csToolsEnums,
 } = cornerstoneTools;
@@ -65,15 +77,27 @@ export function useCornerstone(): CornerstoneState {
         // Initialize Cornerstone Tools
         cornerstoneTools.init();
 
-        // Register tools globally
+        // Register navigation tools globally
         cornerstoneTools.addTool(WindowLevelTool);
         cornerstoneTools.addTool(PanTool);
         cornerstoneTools.addTool(ZoomTool);
         cornerstoneTools.addTool(StackScrollTool);
 
+        // Phase 3: Register measurement tools globally
+        cornerstoneTools.addTool(LengthTool);
+        cornerstoneTools.addTool(AngleTool);
+        cornerstoneTools.addTool(CobbAngleTool);
+        cornerstoneTools.addTool(RectangleROITool);
+        cornerstoneTools.addTool(EllipticalROITool);
+        cornerstoneTools.addTool(ProbeTool);
+
+        // Phase 3: Register annotation tools globally
+        cornerstoneTools.addTool(ArrowAnnotateTool);
+        cornerstoneTools.addTool(PlanarFreehandROITool);
+
         isGloballyInitialized = true;
         setState({ isInitialized: true, error: null });
-        console.log('Cornerstone initialized successfully');
+        console.log('Cornerstone initialized successfully with Phase 3 tools');
       } catch (error) {
         console.error('Failed to initialize Cornerstone:', error);
         setState({ isInitialized: false, error: error as Error });

@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as cornerstone from '@cornerstonejs/core';
 import * as cornerstoneTools from '@cornerstonejs/tools';
 import { apiClient } from '../services/api';
 import { useCornerstone } from '../hooks/useCornerstone';
 import { Toolbar, ViewerTool, WindowLevelPreset } from './Toolbar';
-import type { Series, Instance } from '../types';
+import type { Series, Instance, KeyImage } from '../types';
 
 const TOOL_GROUP_ID = 'STACK_TOOL_GROUP';
 const VIEWPORT_ID = 'MAIN_VIEWPORT';
@@ -18,12 +18,37 @@ interface ViewerState {
   selectedSeriesUid: string | null;
   windowWidth: number | null;
   windowCenter: number | null;
+  currentSopInstanceUid: string | null;
 }
+
+// Map ViewerTool to Cornerstone tool names
+const getToolName = (tool: ViewerTool): string => {
+  const toolMap: Record<ViewerTool, string> = {
+    WindowLevel: cornerstoneTools.WindowLevelTool.toolName,
+    Pan: cornerstoneTools.PanTool.toolName,
+    Zoom: cornerstoneTools.ZoomTool.toolName,
+    StackScroll: cornerstoneTools.StackScrollTool.toolName,
+    // Phase 3: Measurement tools
+    Length: cornerstoneTools.LengthTool.toolName,
+    Angle: cornerstoneTools.AngleTool.toolName,
+    CobbAngle: cornerstoneTools.CobbAngleTool.toolName,
+    RectangleROI: cornerstoneTools.RectangleROITool.toolName,
+    EllipticalROI: cornerstoneTools.EllipticalROITool.toolName,
+    Probe: cornerstoneTools.ProbeTool.toolName,
+    // Phase 3: Annotation tools
+    ArrowAnnotate: cornerstoneTools.ArrowAnnotateTool.toolName,
+    // Note: TextMarker uses PlanarFreehandROITool as Cornerstone.js doesn't have a dedicated
+    // text-only annotation tool. A custom text annotation implementation is planned for future.
+    TextMarker: cornerstoneTools.PlanarFreehandROITool.toolName,
+  };
+  return toolMap[tool] || cornerstoneTools.WindowLevelTool.toolName;
+};
 
 export default function Viewer() {
   const { studyInstanceUid } = useParams();
   const [searchParams] = useSearchParams();
   const pacsId = searchParams.get('pacsId') || '';
+  const queryClient = useQueryClient();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const { isInitialized, error: cornerstoneError } = useCornerstone();
@@ -35,10 +60,14 @@ export default function Viewer() {
     selectedSeriesUid: null,
     windowWidth: null,
     windowCenter: null,
+    currentSopInstanceUid: null,
   });
 
   const [renderingEngine, setRenderingEngine] = useState<cornerstone.RenderingEngine | null>(null);
   const [viewport, setViewport] = useState<cornerstone.Types.IStackViewport | null>(null);
+  const [showAnnotations, setShowAnnotations] = useState(true);
+  const [isKeyImage, setIsKeyImage] = useState(false);
+  const [measurementCount, setMeasurementCount] = useState(0);
 
   // Fetch series for the study
   const { data: seriesData, isLoading: isLoadingSeries } = useQuery({
@@ -55,7 +84,49 @@ export default function Viewer() {
     enabled: !!pacsId && !!studyInstanceUid && !!viewerState.selectedSeriesUid,
   });
 
-  // Initialize rendering engine and viewport
+  // Fetch key images for the study
+  const { data: keyImagesData } = useQuery({
+    queryKey: ['keyImages', studyInstanceUid],
+    queryFn: () => apiClient.getKeyImagesByStudy(studyInstanceUid || ''),
+    enabled: !!studyInstanceUid,
+  });
+
+  // Fetch measurements for the study
+  const { data: measurementsData } = useQuery({
+    queryKey: ['measurements', studyInstanceUid],
+    queryFn: () => apiClient.getMeasurementsByStudy(studyInstanceUid || ''),
+    enabled: !!studyInstanceUid,
+  });
+
+  // Toggle key image mutation
+  const toggleKeyImageMutation = useMutation({
+    mutationFn: (keyImage: Omit<KeyImage, 'id' | 'createdAt' | 'updatedAt'>) =>
+      apiClient.toggleKeyImage(keyImage),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['keyImages', studyInstanceUid] });
+    },
+  });
+
+  // Update measurement count when data changes
+  useEffect(() => {
+    if (measurementsData?.count !== undefined) {
+      setMeasurementCount(measurementsData.count);
+    }
+  }, [measurementsData]);
+
+  // Check if current image is a key image
+  useEffect(() => {
+    if (viewerState.currentSopInstanceUid && keyImagesData?.keyImages) {
+      const isKey = keyImagesData.keyImages.some(
+        (ki: KeyImage) =>
+          ki.sopInstanceUid === viewerState.currentSopInstanceUid &&
+          (ki.frameIndex === 0 || ki.frameIndex === null)
+      );
+      setIsKeyImage(isKey);
+    }
+  }, [viewerState.currentSopInstanceUid, keyImagesData]);
+
+  // Initialize rendering engine and viewport with Phase 3 tools
   useEffect(() => {
     if (!isInitialized || !containerRef.current) return;
 
@@ -88,11 +159,23 @@ export default function Viewer() {
         if (toolGroup) {
           toolGroup.addViewport(VIEWPORT_ID, RENDERING_ENGINE_ID);
 
-          // Add tools to the group
+          // Add navigation tools
           toolGroup.addTool(cornerstoneTools.WindowLevelTool.toolName);
           toolGroup.addTool(cornerstoneTools.PanTool.toolName);
           toolGroup.addTool(cornerstoneTools.ZoomTool.toolName);
           toolGroup.addTool(cornerstoneTools.StackScrollTool.toolName);
+
+          // Phase 3: Add measurement tools
+          toolGroup.addTool(cornerstoneTools.LengthTool.toolName);
+          toolGroup.addTool(cornerstoneTools.AngleTool.toolName);
+          toolGroup.addTool(cornerstoneTools.CobbAngleTool.toolName);
+          toolGroup.addTool(cornerstoneTools.RectangleROITool.toolName);
+          toolGroup.addTool(cornerstoneTools.EllipticalROITool.toolName);
+          toolGroup.addTool(cornerstoneTools.ProbeTool.toolName);
+
+          // Phase 3: Add annotation tools
+          toolGroup.addTool(cornerstoneTools.ArrowAnnotateTool.toolName);
+          toolGroup.addTool(cornerstoneTools.PlanarFreehandROITool.toolName);
 
           // Set Window/Level as active for left mouse button
           toolGroup.setToolActive(cornerstoneTools.WindowLevelTool.toolName, {
@@ -101,6 +184,16 @@ export default function Viewer() {
 
           // Set scroll tool as enabled (it will respond to wheel events automatically)
           toolGroup.setToolEnabled(cornerstoneTools.StackScrollTool.toolName);
+
+          // Enable measurement tools as passive (they will show but not respond to clicks)
+          toolGroup.setToolEnabled(cornerstoneTools.LengthTool.toolName);
+          toolGroup.setToolEnabled(cornerstoneTools.AngleTool.toolName);
+          toolGroup.setToolEnabled(cornerstoneTools.CobbAngleTool.toolName);
+          toolGroup.setToolEnabled(cornerstoneTools.RectangleROITool.toolName);
+          toolGroup.setToolEnabled(cornerstoneTools.EllipticalROITool.toolName);
+          toolGroup.setToolEnabled(cornerstoneTools.ProbeTool.toolName);
+          toolGroup.setToolEnabled(cornerstoneTools.ArrowAnnotateTool.toolName);
+          toolGroup.setToolEnabled(cornerstoneTools.PlanarFreehandROITool.toolName);
         }
       } catch (err) {
         console.error('Failed to initialize viewer:', err);
@@ -139,7 +232,8 @@ export default function Viewer() {
       try {
         // Build image IDs using WADO-RS URL pattern
         const baseUrl = '/api/wado';
-        const imageIds = instancesData.instances.map(
+        const instances = instancesData.instances as Instance[];
+        const imageIds = instances.map(
           (instance: Instance) =>
             `wadors:${baseUrl}/studies/${studyInstanceUid}/series/${viewerState.selectedSeriesUid}/instances/${instance.SOPInstanceUID}/frames/1`
         );
@@ -154,6 +248,7 @@ export default function Viewer() {
           ...prev,
           totalImages: sortedImageIds.length,
           currentImageIndex: 0,
+          currentSopInstanceUid: instances[0]?.SOPInstanceUID || null,
         }));
       } catch (err) {
         console.error('Failed to load images:', err);
@@ -169,16 +264,8 @@ export default function Viewer() {
       const toolGroup = cornerstoneTools.ToolGroupManager.getToolGroup(TOOL_GROUP_ID);
       if (!toolGroup) return;
 
-      // Map tool names
-      const toolNameMap: Record<ViewerTool, string> = {
-        WindowLevel: cornerstoneTools.WindowLevelTool.toolName,
-        Pan: cornerstoneTools.PanTool.toolName,
-        Zoom: cornerstoneTools.ZoomTool.toolName,
-        StackScroll: cornerstoneTools.StackScrollTool.toolName,
-      };
-
-      const currentToolName = toolNameMap[activeTool];
-      const newToolName = toolNameMap[tool];
+      const currentToolName = getToolName(activeTool);
+      const newToolName = getToolName(tool);
 
       // Deactivate current tool
       toolGroup.setToolPassive(currentToolName);
@@ -196,17 +283,19 @@ export default function Viewer() {
   // Navigate to specific image (index is 0-based)
   const handleNavigateImage = useCallback(
     (index: number) => {
-      if (!viewport || !viewerState.totalImages) return;
+      if (!viewport || !viewerState.totalImages || !instancesData?.instances) return;
 
       const clampedIndex = Math.max(0, Math.min(index, viewerState.totalImages - 1));
       viewport.setImageIdIndex(clampedIndex);
 
+      const instances = instancesData.instances as Instance[];
       setViewerState((prev) => ({
         ...prev,
         currentImageIndex: clampedIndex,
+        currentSopInstanceUid: instances[clampedIndex]?.SOPInstanceUID || null,
       }));
     },
-    [viewport, viewerState.totalImages]
+    [viewport, viewerState.totalImages, instancesData]
   );
 
   // Reset viewport
@@ -246,8 +335,69 @@ export default function Viewer() {
       ...prev,
       selectedSeriesUid: seriesUid,
       currentImageIndex: 0,
+      currentSopInstanceUid: null,
     }));
   };
+
+  // Toggle key image
+  const handleToggleKeyImage = useCallback(() => {
+    if (!studyInstanceUid || !viewerState.selectedSeriesUid || !viewerState.currentSopInstanceUid) {
+      return;
+    }
+
+    toggleKeyImageMutation.mutate({
+      studyInstanceUid,
+      seriesInstanceUid: viewerState.selectedSeriesUid,
+      sopInstanceUid: viewerState.currentSopInstanceUid,
+      frameIndex: 0,
+      instanceNumber: viewerState.currentImageIndex + 1,
+      windowWidth: viewerState.windowWidth ?? undefined,
+      windowCenter: viewerState.windowCenter ?? undefined,
+    });
+  }, [
+    studyInstanceUid,
+    viewerState.selectedSeriesUid,
+    viewerState.currentSopInstanceUid,
+    viewerState.currentImageIndex,
+    viewerState.windowWidth,
+    viewerState.windowCenter,
+    toggleKeyImageMutation,
+  ]);
+
+  // Toggle annotations visibility
+  const handleToggleAnnotations = useCallback(() => {
+    const toolGroup = cornerstoneTools.ToolGroupManager.getToolGroup(TOOL_GROUP_ID);
+    if (!toolGroup) return;
+
+    const measurementTools = [
+      cornerstoneTools.LengthTool.toolName,
+      cornerstoneTools.AngleTool.toolName,
+      cornerstoneTools.CobbAngleTool.toolName,
+      cornerstoneTools.RectangleROITool.toolName,
+      cornerstoneTools.EllipticalROITool.toolName,
+      cornerstoneTools.ProbeTool.toolName,
+      cornerstoneTools.ArrowAnnotateTool.toolName,
+    ];
+
+    const newShowAnnotations = !showAnnotations;
+    measurementTools.forEach((toolName) => {
+      if (newShowAnnotations) {
+        toolGroup.setToolEnabled(toolName);
+      } else {
+        toolGroup.setToolDisabled(toolName);
+      }
+    });
+
+    setShowAnnotations(newShowAnnotations);
+    viewport?.render();
+  }, [showAnnotations, viewport]);
+
+  // Clear all measurements (not implemented yet, placeholder)
+  const handleClearMeasurements = useCallback(() => {
+    // This would clear all measurements from the annotation state
+    // For now, we log a message
+    console.log('Clear measurements requested');
+  }, []);
 
   // Error state
   if (cornerstoneError) {
@@ -275,7 +425,7 @@ export default function Viewer() {
 
   return (
     <div className="h-full flex flex-col bg-gray-900">
-      {/* Toolbar */}
+      {/* Toolbar with Phase 3 tools */}
       <Toolbar
         activeTool={activeTool}
         onToolChange={handleToolChange}
@@ -284,6 +434,12 @@ export default function Viewer() {
         onNavigate={handleNavigateImage}
         onReset={handleReset}
         onPresetChange={handlePresetChange}
+        isKeyImage={isKeyImage}
+        onToggleKeyImage={handleToggleKeyImage}
+        measurementCount={measurementCount}
+        onClearMeasurements={handleClearMeasurements}
+        showAnnotations={showAnnotations}
+        onToggleAnnotations={handleToggleAnnotations}
       />
 
       {/* Viewport Area */}
@@ -318,6 +474,35 @@ export default function Viewer() {
               </div>
             ) : (
               <p className="text-gray-400 text-xs">No series available</p>
+            )}
+
+            {/* Key Images Panel */}
+            {keyImagesData?.keyImages && keyImagesData.keyImages.length > 0 && (
+              <div className="mt-4">
+                <h3 className="text-sm font-semibold text-white mb-2">
+                  ⭐ Key Images ({keyImagesData.keyImages.length})
+                </h3>
+                <div className="space-y-1">
+                  {keyImagesData.keyImages.map((keyImage: KeyImage) => (
+                    <button
+                      key={keyImage.id}
+                      onClick={() => {
+                        // Navigate to key image
+                        if (keyImage.seriesInstanceUid !== viewerState.selectedSeriesUid) {
+                          handleSelectSeries(keyImage.seriesInstanceUid);
+                        }
+                        // TODO: Navigate to specific instance
+                      }}
+                      className="w-full text-left p-2 rounded text-xs bg-yellow-900 text-yellow-200 hover:bg-yellow-800 transition-colors"
+                    >
+                      <div className="font-medium">Image {keyImage.instanceNumber || '?'}</div>
+                      {keyImage.description && (
+                        <div className="text-yellow-300 mt-1 truncate">{keyImage.description}</div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         </div>
@@ -355,22 +540,31 @@ export default function Viewer() {
             </div>
           )}
 
+          {/* Key Image Indicator */}
+          {isKeyImage && viewerState.selectedSeriesUid && (
+            <div className="absolute top-2 right-2 z-10 bg-yellow-600 text-white px-2 py-1 rounded text-xs font-medium">
+              ⭐ Key Image
+            </div>
+          )}
+
           <div ref={containerRef} className="w-full h-full" style={{ minHeight: '400px' }} />
         </div>
       </div>
 
       {/* Status Bar */}
-      <div className="p-2 text-white text-sm bg-gray-800 border-t border-gray-700 flex justify-between">
+      <div className="p-2 text-white text-xs bg-gray-800 border-t border-gray-700 flex justify-between">
         <span>Study: {studyInstanceUid?.slice(0, 30)}...</span>
         <span>
           {viewerState.selectedSeriesUid ? (
             <>
               Image {viewerState.currentImageIndex + 1} of {viewerState.totalImages}
+              {measurementCount > 0 && ` • ${measurementCount} measurements`}
             </>
           ) : (
             'No series selected'
           )}
         </span>
+        <span>Tool: {activeTool}</span>
       </div>
     </div>
   );
