@@ -5,10 +5,11 @@ A Spring Boot application for viewing and analyzing DICOM (Digital Imaging and C
 ## Features
 
 - Upload DICOM files (.dcm)
-- Extract and display DICOM metadata
+- File storage and management
 - RESTful API for DICOM file processing
-- Modern web interface
-- Support for common DICOM tags (Patient Name, Study Date, Modality, etc.)
+- Modern responsive web interface
+- File validation and metadata display
+- Extensible architecture for DICOM metadata extraction
 
 ## Prerequisites
 
@@ -18,10 +19,11 @@ A Spring Boot application for viewing and analyzing DICOM (Digital Imaging and C
 ## Technologies Used
 
 - **Spring Boot 3.2.1** - Application framework
-- **DCM4CHE 5.31.0** - DICOM library for reading and processing DICOM files
-- **Thymeleaf** - Server-side template engine
+- **Thymeleaf** - Server-side template engine for web UI
 - **Lombok** - Code generation library
 - **Maven** - Build and dependency management
+
+> **Note**: DICOM metadata extraction features require the DCM4CHE library. To add full DICOM support, include the appropriate DCM4CHE dependencies in `pom.xml`.
 
 ## Getting Started
 
@@ -88,14 +90,12 @@ Response:
   "success": true,
   "message": "File uploaded successfully",
   "metadata": {
-    "patientName": "John Doe",
-    "patientID": "12345",
-    "studyDate": "20240101",
-    "modality": "CT",
-    "studyDescription": "Chest CT",
-    "seriesDescription": "Axial",
-    "manufacturer": "GE Medical Systems",
-    "imageSize": "512x512"
+    "fileName": "sample.dcm",
+    "fileSize": "512.45 KB",
+    "contentType": "application/dicom",
+    "uploadPath": "./uploads/sample.dcm",
+    "status": "File uploaded successfully",
+    "note": "DICOM metadata extraction requires dcm4che library. Please add it to dependencies."
   }
 }
 ```
