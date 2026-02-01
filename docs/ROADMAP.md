@@ -109,15 +109,15 @@ This document outlines the phased implementation plan for the Java DICOM Viewer 
 ### Week 7-8: DICOM Network Foundation
 
 #### Application Entity Configuration
-- [ ] Create AE configuration model
-- [ ] Implement AE management service
-- [ ] Add PACS configuration UI
-- [ ] Store AE settings in database
+- [x] Create AE configuration model
+- [x] Implement AE management service
+- [x] Add PACS configuration UI
+- [x] Store AE settings in database
 
 #### C-ECHO Implementation
-- [ ] Implement C-ECHO SCU using dcm4che
-- [ ] Create connectivity test endpoint
-- [ ] Add connection status UI
+- [x] Implement C-ECHO SCU using dcm4che
+- [x] Create connectivity test endpoint
+- [x] Add connection status UI
 - [ ] Implement connection pooling
 
 ### Week 8-9: Query Operations (C-FIND)
@@ -131,40 +131,40 @@ This document outlines the phased implementation plan for the Java DICOM Viewer 
 - QueryResultParser
 ```
 
-- [ ] Implement Patient Root C-FIND
-- [ ] Implement Study Root C-FIND
-- [ ] Add query at study level
-- [ ] Add query at series level
-- [ ] Add query at instance level
+- [x] Implement Patient Root C-FIND
+- [x] Implement Study Root C-FIND
+- [x] Add query at study level
+- [x] Add query at series level
+- [x] Add query at instance level
 - [ ] Handle query result pagination
 - [ ] Implement query caching
 
 #### Unified Query Service
-- [ ] Abstract query interface for both protocols
-- [ ] PACS type detection and routing
-- [ ] Query result normalization
-- [ ] Error handling and fallbacks
+- [x] Abstract query interface for both protocols
+- [x] PACS type detection and routing
+- [x] Query result normalization
+- [x] Error handling and fallbacks
 
 ### Week 9-10: Retrieval Operations (C-MOVE/C-STORE)
 
 #### C-MOVE SCU Implementation
-- [ ] Implement C-MOVE request handling
-- [ ] Configure local AE for receiving
-- [ ] Handle C-MOVE sub-operations
-- [ ] Implement retrieval progress tracking
+- [x] Implement C-MOVE request handling
+- [x] Configure local AE for receiving
+- [x] Handle C-MOVE sub-operations
+- [x] Implement retrieval progress tracking
 
 #### C-STORE SCP Implementation
-- [ ] Create C-STORE SCP service
-- [ ] Implement instance reception handler
-- [ ] Add local storage management
-- [ ] Implement metadata extraction
-- [ ] Store received instances in cache
+- [x] Create C-STORE SCP service
+- [x] Implement instance reception handler
+- [x] Add local storage management
+- [x] Implement metadata extraction
+- [x] Store received instances in cache
 
 #### Local Storage
-- [ ] Design storage directory structure
-- [ ] Implement DICOM file writing
-- [ ] Create metadata database entries
-- [ ] Add storage cleanup/management
+- [x] Design storage directory structure
+- [x] Implement DICOM file writing
+- [x] Create metadata database entries
+- [x] Add storage cleanup/management
 
 ### Phase 2 Deliverables
 ✅ C-ECHO for connectivity testing  
@@ -668,9 +668,9 @@ This document outlines the phased implementation plan for the Java DICOM Viewer 
 - [ ] Basic viewing tools functional
 
 ### Phase 2
-- [ ] Can connect to legacy PACS
-- [ ] C-FIND returns correct results
-- [ ] C-MOVE retrieves images successfully
+- [x] Can connect to legacy PACS
+- [x] C-FIND returns correct results
+- [x] C-MOVE retrieves images successfully
 
 ### Phase 3
 - [ ] All measurement tools accurate to 1mm
