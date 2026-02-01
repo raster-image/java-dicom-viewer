@@ -243,3 +243,377 @@ CREATE TABLE audit_log (
 - HL7/FHIR integration for clinical data
 - Reporting system integration
 - RIS/HIS connectivity
+
+---
+
+## Viewer Architecture
+
+### Frontend Viewer Components
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                           DICOM Viewer Application                               │
+│                                                                                  │
+│  ┌─────────────────────────────────────────────────────────────────────────┐   │
+│  │                         Viewer Container                                 │   │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐    │   │
+│  │  │   Toolbar   │  │  Viewport   │  │   Series    │  │   Study     │    │   │
+│  │  │  Component  │  │  Component  │  │   Panel     │  │   Info      │    │   │
+│  │  └─────────────┘  └─────────────┘  └─────────────┘  └─────────────┘    │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
+│                                      │                                          │
+│  ┌─────────────────────────────────────────────────────────────────────────┐   │
+│  │                        Tool Management Layer                             │   │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐ │   │
+│  │  │ WL/WW    │  │ Zoom/Pan │  │ Scroll   │  │ Measure  │  │ Annotate │ │   │
+│  │  │ Tool     │  │ Tool     │  │ Tool     │  │ Tool     │  │ Tool     │ │   │
+│  │  └──────────┘  └──────────┘  └──────────┘  └──────────┘  └──────────┘ │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
+│                                      │                                          │
+│  ┌─────────────────────────────────────────────────────────────────────────┐   │
+│  │                     Cornerstone.js / Cornerstone3D                       │   │
+│  │  ┌───────────────────────────────────────────────────────────────────┐  │   │
+│  │  │                    Rendering Engine                                │  │   │
+│  │  │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐             │  │   │
+│  │  │  │ 2D View │  │ MPR     │  │ Volume  │  │ MIP     │             │  │   │
+│  │  │  │ Render  │  │ Render  │  │ Render  │  │ Render  │             │  │   │
+│  │  │  └─────────┘  └─────────┘  └─────────┘  └─────────┘             │  │   │
+│  │  └───────────────────────────────────────────────────────────────────┘  │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
+│                                      │                                          │
+│  ┌─────────────────────────────────────────────────────────────────────────┐   │
+│  │                        Image Loader Layer                                │   │
+│  │  ┌──────────────────────┐  ┌──────────────────────┐                    │   │
+│  │  │   WADO Image Loader  │  │   File Image Loader  │                    │   │
+│  │  └──────────────────────┘  └──────────────────────┘                    │   │
+│  └─────────────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Tool Architecture
+
+```typescript
+// Tool Interface Definition
+interface ViewerTool {
+  id: string;
+  name: string;
+  icon: string;
+  category: ToolCategory;
+  mode: 'active' | 'passive' | 'enabled' | 'disabled';
+  
+  // Lifecycle methods
+  activate(): void;
+  deactivate(): void;
+  
+  // Event handlers
+  onMouseDown?(event: ViewerMouseEvent): void;
+  onMouseMove?(event: ViewerMouseEvent): void;
+  onMouseUp?(event: ViewerMouseEvent): void;
+  onMouseWheel?(event: ViewerWheelEvent): void;
+  onTouchStart?(event: ViewerTouchEvent): void;
+  onKeyDown?(event: ViewerKeyEvent): void;
+  
+  // Rendering
+  render?(context: CanvasRenderingContext2D): void;
+}
+
+type ToolCategory = 
+  | 'manipulation'   // WL, Zoom, Pan, Rotate
+  | 'measurement'    // Length, Angle, ROI
+  | 'annotation'     // Text, Arrow, Shape
+  | 'navigation'     // Scroll, Cine
+  | 'segmentation'   // ROI, Brush
+  | '3d';            // MPR, Volume
+```
+
+### Measurement Data Model
+
+```typescript
+interface Measurement {
+  id: string;
+  type: MeasurementType;
+  studyInstanceUID: string;
+  seriesInstanceUID: string;
+  sopInstanceUID: string;
+  frameNumber?: number;
+  
+  // Geometry
+  points: Point2D[];
+  handles: MeasurementHandle[];
+  
+  // Result
+  value: number;
+  unit: string;
+  text?: string;
+  
+  // Metadata
+  createdAt: Date;
+  createdBy: string;
+  modifiedAt?: Date;
+  isVisible: boolean;
+  color: string;
+}
+
+type MeasurementType = 
+  | 'length'
+  | 'angle'
+  | 'cobbs_angle'
+  | 'rectangle_roi'
+  | 'ellipse_roi'
+  | 'polygon_roi'
+  | 'freehand_roi'
+  | 'pixel_probe';
+
+interface ROIMeasurement extends Measurement {
+  stats: {
+    mean: number;
+    stdDev: number;
+    min: number;
+    max: number;
+    area: number;
+    perimeter: number;
+    pixelCount: number;
+  };
+}
+```
+
+### Viewport State Management
+
+```typescript
+interface ViewportState {
+  id: string;
+  
+  // Image Reference
+  studyInstanceUID: string;
+  seriesInstanceUID: string;
+  imageIdIndex: number;
+  
+  // Display Settings
+  windowCenter: number;
+  windowWidth: number;
+  invert: boolean;
+  
+  // Transform
+  scale: number;
+  translation: { x: number; y: number };
+  rotation: number;
+  flipHorizontal: boolean;
+  flipVertical: boolean;
+  
+  // Interpolation
+  interpolationType: 'nearest' | 'linear';
+  
+  // Overlay
+  showPatientInfo: boolean;
+  showAnnotations: boolean;
+  showMeasurements: boolean;
+}
+
+interface MPRViewportState extends ViewportState {
+  plane: 'axial' | 'sagittal' | 'coronal' | 'oblique';
+  slabThickness: number;
+  slabMode: 'average' | 'mip' | 'minip';
+  crosshairPosition: Point3D;
+}
+
+interface VolumeViewportState extends ViewportState {
+  camera: {
+    position: Point3D;
+    focalPoint: Point3D;
+    viewUp: [number, number, number];
+    viewAngle: number;
+    parallelScale: number;
+  };
+  transferFunction: TransferFunction;
+  clippingPlanes: ClippingPlane[];
+}
+```
+
+### 3D Rendering Pipeline
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        3D Rendering Pipeline                             │
+│                                                                          │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐              │
+│  │   Volume     │    │   Transfer   │    │   Shader    │              │
+│  │   Data       │───►│   Function   │───►│   Program   │              │
+│  │   (3D)       │    │   Mapping    │    │   (WebGL)   │              │
+│  └──────────────┘    └──────────────┘    └──────────────┘              │
+│         │                   │                   │                       │
+│         ▼                   ▼                   ▼                       │
+│  ┌──────────────┐    ┌──────────────┐    ┌──────────────┐              │
+│  │   Texture    │    │   Ray        │    │   Frame     │              │
+│  │   Upload     │───►│   Marching   │───►│   Buffer    │              │
+│  │   (GPU)      │    │   Algorithm  │    │   Output    │              │
+│  └──────────────┘    └──────────────┘    └──────────────┘              │
+│                                                 │                       │
+│                                                 ▼                       │
+│                                          ┌──────────────┐              │
+│                                          │   Display    │              │
+│                                          │   (Canvas)   │              │
+│                                          └──────────────┘              │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### MPR Reconstruction Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      MPR Reconstruction System                           │
+│                                                                          │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                      Volume Data Store                            │  │
+│  │  ┌────────────────────────────────────────────────────────────┐  │  │
+│  │  │  3D Voxel Array (Float32/Int16)                            │  │  │
+│  │  │  Dimensions: Width x Height x Depth                         │  │  │
+│  │  │  Spacing: [sx, sy, sz] mm                                   │  │  │
+│  │  │  Origin: [ox, oy, oz] mm                                    │  │  │
+│  │  └────────────────────────────────────────────────────────────┘  │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+│                                   │                                     │
+│                    ┌──────────────┼──────────────┐                     │
+│                    ▼              ▼              ▼                      │
+│  ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐       │
+│  │   Axial Plane    │ │  Sagittal Plane  │ │  Coronal Plane   │       │
+│  │   Extraction     │ │  Extraction      │ │  Extraction      │       │
+│  └──────────────────┘ └──────────────────┘ └──────────────────┘       │
+│           │                    │                    │                  │
+│           ▼                    ▼                    ▼                  │
+│  ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐       │
+│  │   Interpolation  │ │  Interpolation   │ │  Interpolation   │       │
+│  │   (Trilinear)    │ │  (Trilinear)     │ │  (Trilinear)     │       │
+│  └──────────────────┘ └──────────────────┘ └──────────────────┘       │
+│           │                    │                    │                  │
+│           ▼                    ▼                    ▼                  │
+│  ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐       │
+│  │   2D Image       │ │   2D Image       │ │   2D Image       │       │
+│  │   Rendering      │ │   Rendering      │ │   Rendering      │       │
+│  └──────────────────┘ └──────────────────┘ └──────────────────┘       │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Clinical Module Integration
+
+```typescript
+// Clinical Module Interface
+interface ClinicalModule {
+  id: string;
+  name: string;
+  description: string;
+  category: ModuleCategory;
+  
+  // Module capabilities
+  supportedModalities: string[];
+  supportedBodyParts: string[];
+  
+  // UI Integration
+  getToolbarItems(): ToolbarItem[];
+  getPanelComponents(): React.ComponentType[];
+  getMenuItems(): MenuItem[];
+  
+  // Data Processing
+  processStudy?(study: DicomStudy): Promise<ModuleResult>;
+  
+  // Visualization
+  getOverlays?(): Overlay[];
+  getAnnotations?(): Annotation[];
+}
+
+type ModuleCategory = 
+  | 'cardiac'
+  | 'neuro'
+  | 'vascular'
+  | 'orthopedic'
+  | 'oncology'
+  | 'general';
+
+// Cardiac Module Example
+interface CardiacModule extends ClinicalModule {
+  category: 'cardiac';
+  
+  // Cardiac-specific methods
+  detectCardiacPhases(): CardiacPhase[];
+  extractCoronaryArteries(): CoronaryTree;
+  calculateEjectionFraction(): number;
+  measureChamberVolumes(): ChamberVolumes;
+}
+
+// Vascular Module Example  
+interface VascularModule extends ClinicalModule {
+  category: 'vascular';
+  
+  // Vascular-specific methods
+  segmentVessels(seedPoints: Point3D[]): VesselTree;
+  extractCenterline(vessel: VesselSegment): Point3D[];
+  measureStenosis(location: Point3D): StenosisMeasurement;
+  analyzeAneurysm(region: BoundingBox): AneurysmAnalysis;
+}
+```
+
+### AI Integration Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        AI Integration Framework                          │
+│                                                                          │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │                      AI Plugin Manager                           │   │
+│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐        │   │
+│  │  │ Plugin   │  │ Plugin   │  │ Plugin   │  │ Plugin   │        │   │
+│  │  │ Registry │  │ Loader   │  │ Executor │  │ Monitor  │        │   │
+│  │  └──────────┘  └──────────┘  └──────────┘  └──────────┘        │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                   │                                     │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │                      AI Plugin Interface                         │   │
+│  │                                                                  │   │
+│  │  // Plugin Definition                                            │   │
+│  │  interface AIPlugin {                                            │   │
+│  │    id: string;                                                   │   │
+│  │    name: string;                                                 │   │
+│  │    version: string;                                              │   │
+│  │    inputSchema: InputSchema;                                     │   │
+│  │    outputSchema: OutputSchema;                                   │   │
+│  │                                                                  │   │
+│  │    // Execution                                                  │   │
+│  │    analyze(input: AIInput): Promise<AIOutput>;                   │   │
+│  │                                                                  │   │
+│  │    // Progress                                                   │   │
+│  │    onProgress?: (progress: number) => void;                      │   │
+│  │  }                                                               │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                   │                                     │
+│                    ┌──────────────┼──────────────┐                     │
+│                    ▼              ▼              ▼                      │
+│  ┌──────────────────┐ ┌──────────────────┐ ┌──────────────────┐       │
+│  │   Segmentation   │ │   Detection      │ │   Measurement    │       │
+│  │   Plugins        │ │   Plugins        │ │   Plugins        │       │
+│  │                  │ │                  │ │                  │       │
+│  │  - Organ Seg     │ │  - Nodule Det    │ │  - Auto Measure  │       │
+│  │  - Lesion Seg    │ │  - Finding Det   │ │  - Landmark Det  │       │
+│  │  - Vessel Seg    │ │  - Anomaly Det   │ │  - Growth Track  │       │
+│  └──────────────────┘ └──────────────────┘ └──────────────────┘       │
+│                                   │                                     │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │                      Result Integration                          │   │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │   │
+│  │  │  Overlay     │  │  Annotation  │  │  Report      │          │   │
+│  │  │  Renderer    │  │  Manager     │  │  Generator   │          │   │
+│  │  └──────────────┘  └──────────────┘  └──────────────┘          │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### Performance Optimization Strategies
+
+| Area | Strategy | Implementation |
+|------|----------|----------------|
+| Image Loading | Progressive loading | Load low-res first, then full resolution |
+| Image Caching | Multi-level cache | Browser cache → IndexedDB → Server cache |
+| Rendering | WebGL acceleration | GPU-based image processing |
+| Memory | Streaming volumes | Load only visible slices |
+| Network | Prefetching | Anticipate user navigation |
+| 3D Rendering | LOD (Level of Detail) | Reduce resolution during interaction |
+| MPR | Background generation | Pre-compute reformats |
+| Tools | Lazy initialization | Load tools on demand |
