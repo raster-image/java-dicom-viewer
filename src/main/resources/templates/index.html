@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java DICOM Viewer</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Java DICOM Viewer</h1>
+            <p>Upload and view DICOM medical images</p>
+        </header>
+
+        <main>
+            <div class="upload-section">
+                <h2>Upload DICOM File</h2>
+                <form id="uploadForm">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="dicomFile" name="file" accept=".dcm" required>
+                        <label for="dicomFile" class="file-label">Choose DICOM File</label>
+                    </div>
+                    <button type="submit" class="btn-upload">Upload</button>
+                </form>
+                <div id="uploadStatus"></div>
+            </div>
+
+            <div class="metadata-section" id="metadataSection" style="display: none;">
+                <h2>DICOM Metadata</h2>
+                <div id="metadataContent"></div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Java DICOM Viewer - Spring Boot Application</p>
+        </footer>
+    </div>
+
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>
