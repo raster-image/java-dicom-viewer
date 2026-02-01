@@ -37,7 +37,9 @@ const getToolName = (tool: ViewerTool): string => {
     Probe: cornerstoneTools.ProbeTool.toolName,
     // Phase 3: Annotation tools
     ArrowAnnotate: cornerstoneTools.ArrowAnnotateTool.toolName,
-    TextMarker: cornerstoneTools.PlanarFreehandROITool.toolName, // Using as fallback
+    // Note: TextMarker uses PlanarFreehandROITool as Cornerstone.js doesn't have a dedicated
+    // text-only annotation tool. A custom text annotation implementation is planned for future.
+    TextMarker: cornerstoneTools.PlanarFreehandROITool.toolName,
   };
   return toolMap[tool] || cornerstoneTools.WindowLevelTool.toolName;
 };
