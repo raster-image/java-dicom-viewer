@@ -6,6 +6,8 @@ This document outlines the phased implementation plan for the Java DICOM Viewer 
 
 > **Phase 1 Details**: For comprehensive Phase 1 implementation guide with code examples, acceptance criteria, and testing strategies, see [PHASE1_IMPLEMENTATION.md](./PHASE1_IMPLEMENTATION.md)
 
+> **Phase 2 Details**: For comprehensive Phase 2 implementation guide with code examples, acceptance criteria, and testing strategies, see [PHASE2_IMPLEMENTATION.md](./PHASE2_IMPLEMENTATION.md)
+
 ## Overview
 
 | Phase | Name | Duration | Key Deliverables |
