@@ -58,6 +58,21 @@ public class PacsService {
     }
 
     /**
+     * Get a PACS configuration by ID or null if not found.
+     */
+    public PacsConfiguration getPacs(UUID id) {
+        return pacsConfigRepository.findById(id).orElse(null);
+    }
+
+    /**
+     * Get the first active PACS configuration.
+     */
+    public PacsConfiguration getFirstActivePacs() {
+        List<PacsConfiguration> activePacs = pacsConfigRepository.findByIsActiveTrue();
+        return activePacs.isEmpty() ? null : activePacs.get(0);
+    }
+
+    /**
      * Create a new PACS configuration.
      */
     public PacsConfiguration createPacsConfiguration(PacsConfiguration config) {

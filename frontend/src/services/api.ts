@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { PacsConfiguration, Study, StudyQueryFilters } from '../types'
+import type { PacsConfiguration, StudyQueryFilters } from '../types'
 
 const api = axios.create({
   baseURL: '/api',
