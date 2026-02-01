@@ -1600,6 +1600,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -1813,7 +1814,8 @@ public class CfindScu {
         study.setStudyTime(attrs.getString(Tag.StudyTime));
         study.setStudyDescription(attrs.getString(Tag.StudyDescription));
         study.setAccessionNumber(attrs.getString(Tag.AccessionNumber));
-        study.setModalitiesInStudy(List.of(attrs.getStrings(Tag.ModalitiesInStudy)));
+        String[] modalities = attrs.getStrings(Tag.ModalitiesInStudy);
+        study.setModalitiesInStudy(modalities != null ? Arrays.asList(modalities) : List.of());
         study.setNumberOfStudyRelatedSeries(attrs.getInt(Tag.NumberOfStudyRelatedSeries, 0));
         study.setNumberOfStudyRelatedInstances(attrs.getInt(Tag.NumberOfStudyRelatedInstances, 0));
         return study;
