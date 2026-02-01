@@ -4,7 +4,7 @@ This document provides detailed technical specifications, step-by-step implement
 
 > **Duration**: 4-6 weeks  
 > **Focus**: Basic viewer functionality and DICOMweb support  
-> **Prerequisites**: Java 21+, Node.js 20+, Docker (optional)
+> **Prerequisites**: Java 25+, Node.js 20+, Docker (optional)
 
 ---
 
@@ -47,8 +47,8 @@ This document provides detailed technical specifications, step-by-step implement
 #### 1.1 Initialize Spring Boot Project
 
 **Tasks:**
-- [ ] Create Maven project structure with Spring Boot 3.4.x parent
-- [ ] Configure Java 21 compiler settings
+- [ ] Create Gradle project structure with Spring Boot 4.x
+- [ ] Configure Java 25 compiler settings
 - [ ] Add dcm4che 5.x dependencies for DICOM operations
 - [ ] Set up project package structure
 
@@ -444,29 +444,29 @@ volumes:
 
 **File: `backend/Dockerfile`**
 ```dockerfile
-FROM eclipse-temurin:21-jdk-alpine AS build
+FROM eclipse-temurin:25-jdk-alpine AS build
 WORKDIR /app
 
-# Copy Maven files
-COPY pom.xml .
-COPY .mvn .mvn
-COPY mvnw .
+# Copy Gradle files
+COPY build.gradle settings.gradle ./
+COPY gradle gradle
+COPY gradlew .
 
 # Download dependencies (cached layer)
-RUN ./mvnw dependency:go-offline
+RUN ./gradlew dependencies --no-daemon
 
 # Copy source code
 COPY src src
 
 # Build application
-RUN ./mvnw package -DskipTests
+RUN ./gradlew bootJar --no-daemon
 
 # Runtime image
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 
 # Copy built JAR
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/build/libs/*.jar app.jar
 
 # Create non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
