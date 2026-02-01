@@ -1,21 +1,19 @@
 # Build stage
-FROM eclipse-temurin:21-jdk-alpine as build
+FROM gradle:8-jdk21-alpine as build
 WORKDIR /app
 
-COPY backend/pom.xml .
+COPY backend/build.gradle .
+COPY backend/settings.gradle .
 COPY backend/src ./src
 
-# Install Maven
-RUN apk add --no-cache maven
-
 # Build the application
-RUN mvn clean package -DskipTests
+RUN gradle bootJar --no-daemon -x test
 
 # Runtime stage
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/build/libs/*.jar app.jar
 
 # Create directory for DICOM storage
 RUN mkdir -p /data/dicom
