@@ -134,20 +134,21 @@ docker-compose up -d
 - [Architecture Overview](docs/ARCHITECTURE.md) - Technical architecture and design decisions
 - [Implementation Roadmap](docs/ROADMAP.md) - Phased development plan (7 phases)
 - [Phase 1 Implementation Guide](docs/PHASE1_IMPLEMENTATION.md) - Detailed Phase 1 specs with code examples
+- [Phase 2 Implementation Guide](docs/PHASE2_IMPLEMENTATION.md) - Detailed Phase 2 specs with code examples (Legacy PACS Support)
 - [Module Specifications](docs/MODULE_SPECIFICATIONS.md) - Detailed viewer module specifications
 - [API Documentation](docs/API.md) - REST API reference
 
 ## Implementation Phases
 
-| Phase | Duration | Focus |
-|-------|----------|-------|
-| 1 | 4-6 weeks | Foundation - Basic viewer, DICOMweb |
-| 2 | 3-4 weeks | Legacy PACS - C-FIND, C-MOVE, C-STORE |
-| 3 | 4-6 weeks | Core Viewer - Measurements, annotations, MPR |
-| 4 | 4-6 weeks | Advanced 2D - Image processing, workflow |
-| 5 | 6-8 weeks | 3D Reconstruction - Volume rendering, MIP |
-| 6 | 8-10 weeks | Clinical Modules - Cardiac, neuro, vascular |
-| 7 | 6-8 weeks | AI Integration - Plugin framework, premium features |
+| Phase | Duration | Focus | Status |
+|-------|----------|-------|--------|
+| 1 | 4-6 weeks | Foundation - Basic viewer, DICOMweb | ✅ Complete |
+| 2 | 3-4 weeks | Legacy PACS - C-FIND, C-MOVE, C-STORE | ✅ Complete |
+| 3 | 4-6 weeks | Core Viewer - Measurements, annotations, MPR | 📋 Planned |
+| 4 | 4-6 weeks | Advanced 2D - Image processing, workflow | 📋 Planned |
+| 5 | 6-8 weeks | 3D Reconstruction - Volume rendering, MIP | 📋 Planned |
+| 6 | 8-10 weeks | Clinical Modules - Cardiac, neuro, vascular | 📋 Planned |
+| 7 | 6-8 weeks | AI Integration - Plugin framework, premium features | 📋 Planned |
 
 ## License
 
