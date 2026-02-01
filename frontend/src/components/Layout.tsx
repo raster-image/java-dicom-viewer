@@ -1,4 +1,4 @@
-import { Outlet, Link } from 'react-router-dom'
+import { Outlet, Link } from 'react-router-dom';
 
 export default function Layout() {
   return (
@@ -9,10 +9,7 @@ export default function Layout() {
           <h1 className="text-xl font-bold text-white">DICOM Viewer</h1>
         </div>
         <nav className="mt-4">
-          <Link
-            to="/"
-            className="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white"
-          >
+          <Link to="/" className="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white">
             Dashboard
           </Link>
           <Link
@@ -35,5 +32,5 @@ export default function Layout() {
         <Outlet />
       </main>
     </div>
-  )
+  );
 }

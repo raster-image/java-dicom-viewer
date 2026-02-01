@@ -1,40 +1,44 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
-import { apiClient } from '../services/api'
-import type { Study, PacsConfiguration } from '../types'
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { apiClient } from '../services/api';
+import type { Study, PacsConfiguration } from '../types';
 
 export default function StudyBrowser() {
-  const navigate = useNavigate()
-  const [selectedPacs, setSelectedPacs] = useState<string>('')
+  const navigate = useNavigate();
+  const [selectedPacs, setSelectedPacs] = useState<string>('');
   const [filters, setFilters] = useState({
     patientId: '',
     patientName: '',
     studyDate: '',
     modality: '',
     accessionNumber: '',
-  })
+  });
 
   // Fetch PACS configurations
   const { data: pacsData } = useQuery({
     queryKey: ['pacs'],
     queryFn: () => apiClient.getPacsConfigurations(),
-  })
+  });
 
   // Fetch studies when PACS is selected
-  const { data: studiesData, isLoading, refetch } = useQuery({
+  const {
+    data: studiesData,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['studies', selectedPacs, filters],
     queryFn: () => apiClient.queryStudies(selectedPacs, filters),
     enabled: !!selectedPacs,
-  })
+  });
 
   const handleSearch = () => {
-    refetch()
-  }
+    refetch();
+  };
 
   const handleViewStudy = (studyInstanceUid: string) => {
-    navigate(`/viewer/${studyInstanceUid}?pacsId=${selectedPacs}`)
-  }
+    navigate(`/viewer/${studyInstanceUid}?pacsId=${selectedPacs}`);
+  };
 
   return (
     <div className="p-6">
@@ -154,12 +158,17 @@ export default function StudyBrowser() {
               </tr>
             ) : (
               studiesData?.studies?.map((study: Study) => (
-                <tr key={study.StudyInstanceUID} className="border-t border-gray-700 hover:bg-gray-700">
+                <tr
+                  key={study.StudyInstanceUID}
+                  className="border-t border-gray-700 hover:bg-gray-700"
+                >
                   <td className="px-4 py-3 text-white">{study.PatientName || 'N/A'}</td>
                   <td className="px-4 py-3 text-gray-300">{study.PatientID || 'N/A'}</td>
                   <td className="px-4 py-3 text-gray-300">{study.StudyDate || 'N/A'}</td>
                   <td className="px-4 py-3 text-gray-300">{study.StudyDescription || 'N/A'}</td>
-                  <td className="px-4 py-3 text-gray-300">{study.ModalitiesInStudy || study.Modality || 'N/A'}</td>
+                  <td className="px-4 py-3 text-gray-300">
+                    {study.ModalitiesInStudy || study.Modality || 'N/A'}
+                  </td>
                   <td className="px-4 py-3">
                     <button
                       className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700"
@@ -175,5 +184,5 @@ export default function StudyBrowser() {
         </table>
       </div>
     </div>
-  )
+  );
 }

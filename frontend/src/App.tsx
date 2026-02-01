@@ -1,9 +1,9 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Layout from './components/Layout'
-import Dashboard from './components/Dashboard'
-import StudyBrowser from './components/StudyBrowser'
-import Viewer from './components/Viewer'
-import Settings from './components/Settings'
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
+import Dashboard from './components/Dashboard';
+import StudyBrowser from './components/StudyBrowser';
+import Viewer from './components/Viewer';
+import Settings from './components/Settings';
 
 function App() {
   return (
@@ -17,7 +17,7 @@ function App() {
         </Route>
       </Routes>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;

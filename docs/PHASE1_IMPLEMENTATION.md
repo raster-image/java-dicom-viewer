@@ -174,7 +174,7 @@ public class HealthController {
 - [x] Create Vite project with React and TypeScript
 - [x] Install and configure Cornerstone.js
 - [x] Set up Tailwind CSS
-- [ ] Configure ESLint and Prettier
+- [x] Configure ESLint and Prettier
 - [x] Create basic component structure
 
 **Project Structure:**
