@@ -1815,7 +1815,11 @@ public class CfindScu {
         study.setStudyDescription(attrs.getString(Tag.StudyDescription));
         study.setAccessionNumber(attrs.getString(Tag.AccessionNumber));
         String[] modalities = attrs.getStrings(Tag.ModalitiesInStudy);
-        study.setModalitiesInStudy(modalities != null ? Arrays.asList(modalities) : List.of());
+        if (modalities != null && modalities.length > 0) {
+            study.setModalitiesInStudy(Arrays.asList(modalities));
+        } else {
+            study.setModalitiesInStudy(List.of());
+        }
         study.setNumberOfStudyRelatedSeries(attrs.getInt(Tag.NumberOfStudyRelatedSeries, 0));
         study.setNumberOfStudyRelatedInstances(attrs.getInt(Tag.NumberOfStudyRelatedInstances, 0));
         return study;
