@@ -30,64 +30,64 @@ This document outlines the phased implementation plan for the Java DICOM Viewer 
 ### Week 1-2: Project Setup
 
 #### Backend Setup
-- [ ] Initialize Spring Boot 4.x project with Gradle
-- [ ] Configure Java 25 with appropriate compiler settings
-- [ ] Add dcm4che 5.x dependencies
-- [ ] Set up project structure (controllers, services, repositories)
-- [ ] Configure application properties
-- [ ] Set up logging (SLF4J/Logback)
-- [ ] Add basic health check endpoint
+- [x] Initialize Spring Boot 4.x project with Gradle
+- [x] Configure Java 25 with appropriate compiler settings
+- [x] Add dcm4che 5.x dependencies
+- [x] Set up project structure (controllers, services, repositories)
+- [x] Configure application properties
+- [x] Set up logging (SLF4J/Logback)
+- [x] Add basic health check endpoint
 
 #### Frontend Setup
-- [ ] Initialize React project with TypeScript
-- [ ] Install and configure Cornerstone.js
-- [ ] Set up Tailwind CSS for styling
-- [ ] Configure build tools (Vite)
-- [ ] Create basic component structure
-- [ ] Set up routing (React Router)
+- [x] Initialize React project with TypeScript
+- [x] Install and configure Cornerstone.js
+- [x] Set up Tailwind CSS for styling
+- [x] Configure build tools (Vite)
+- [x] Create basic component structure
+- [x] Set up routing (React Router)
 
 #### Development Infrastructure
-- [ ] Docker Compose for local development
-- [ ] Set up test PACS (dcm4che-arc or Orthanc)
+- [x] Docker Compose for local development
+- [x] Set up test PACS (dcm4che-arc or Orthanc)
 - [ ] Configure CI/CD pipeline basics
 
 ### Week 3-4: Basic DICOM Viewer
 
 #### Image Rendering
-- [ ] Integrate Cornerstone.js rendering engine
-- [ ] Implement image loading from local source
-- [ ] Add window/level adjustment tool
-- [ ] Implement zoom and pan tools
-- [ ] Add image scroll for series navigation
-- [ ] Implement basic toolbar UI
+- [x] Integrate Cornerstone.js rendering engine
+- [x] Implement image loading from local source
+- [x] Add window/level adjustment tool
+- [x] Implement zoom and pan tools
+- [x] Add image scroll for series navigation
+- [x] Implement basic toolbar UI
 
 #### Study Browser
-- [ ] Create study list component
-- [ ] Implement series thumbnail grid
-- [ ] Add study metadata display
-- [ ] Implement study selection
+- [x] Create study list component
+- [x] Implement series thumbnail grid
+- [x] Add study metadata display
+- [x] Implement study selection
 
 ### Week 5-6: DICOMweb Integration
 
 #### WADO-RS Implementation
-- [ ] Create WADO-RS client service
-- [ ] Implement instance retrieval
-- [ ] Add series retrieval support
-- [ ] Implement thumbnail generation
+- [x] Create WADO-RS client service
+- [x] Implement instance retrieval
+- [x] Add series retrieval support
+- [x] Implement thumbnail generation
 - [ ] Handle multipart/related responses
 
 #### QIDO-RS Implementation
-- [ ] Create QIDO-RS client service
-- [ ] Implement study-level queries
-- [ ] Add series-level queries
-- [ ] Implement instance-level queries
+- [x] Create QIDO-RS client service
+- [x] Implement study-level queries
+- [x] Add series-level queries
+- [x] Implement instance-level queries
 - [ ] Add query pagination support
 
 #### API Endpoints
-- [ ] GET /api/studies - List/search studies
-- [ ] GET /api/studies/{studyUID}/series - List series
-- [ ] GET /api/studies/{studyUID}/series/{seriesUID}/instances - List instances
-- [ ] GET /api/wado - WADO-RS proxy endpoint
+- [x] GET /api/studies - List/search studies
+- [x] GET /api/studies/{studyUID}/series - List series
+- [x] GET /api/studies/{studyUID}/series/{seriesUID}/instances - List instances
+- [x] GET /api/wado - WADO-RS proxy endpoint
 
 ### Phase 1 Deliverables
 ✅ Functional DICOM viewer  

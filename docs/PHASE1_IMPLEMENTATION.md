@@ -47,10 +47,10 @@ This document provides detailed technical specifications, step-by-step implement
 #### 1.1 Initialize Spring Boot Project
 
 **Tasks:**
-- [ ] Create Gradle project structure with Spring Boot 4.x
-- [ ] Configure Java 25 compiler settings
-- [ ] Add dcm4che 5.x dependencies for DICOM operations
-- [ ] Set up project package structure
+- [x] Create Gradle project structure with Spring Boot 4.x
+- [x] Configure Java 25 compiler settings
+- [x] Add dcm4che 5.x dependencies for DICOM operations
+- [x] Set up project package structure
 
 **Project Structure:**
 ```
@@ -171,11 +171,11 @@ public class HealthController {
 #### 2.1 Initialize React Project
 
 **Tasks:**
-- [ ] Create Vite project with React and TypeScript
-- [ ] Install and configure Cornerstone.js
-- [ ] Set up Tailwind CSS
+- [x] Create Vite project with React and TypeScript
+- [x] Install and configure Cornerstone.js
+- [x] Set up Tailwind CSS
 - [ ] Configure ESLint and Prettier
-- [ ] Create basic component structure
+- [x] Create basic component structure
 
 **Project Structure:**
 ```
@@ -1481,32 +1481,32 @@ export const studyService = {
 ### Phase 1 Completion Checklist
 
 #### Backend Requirements
-- [ ] Spring Boot application starts without errors
-- [ ] Health endpoint (`/api/health`) returns 200 OK with status information
-- [ ] QIDO-RS proxy endpoint successfully queries configured PACS
-- [ ] WADO-RS proxy endpoint successfully retrieves DICOM instances
-- [ ] Study, Series, and Instance endpoints return properly formatted JSON
-- [ ] Error handling returns appropriate HTTP status codes and messages
-- [ ] All API endpoints documented with OpenAPI/Swagger
+- [x] Spring Boot application starts without errors
+- [x] Health endpoint (`/api/health`) returns 200 OK with status information
+- [x] QIDO-RS proxy endpoint successfully queries configured PACS
+- [x] WADO-RS proxy endpoint successfully retrieves DICOM instances
+- [x] Study, Series, and Instance endpoints return properly formatted JSON
+- [x] Error handling returns appropriate HTTP status codes and messages
+- [x] All API endpoints documented with OpenAPI/Swagger
 
 #### Frontend Requirements
-- [ ] React application builds without errors
-- [ ] Cornerstone.js initializes without console errors
-- [ ] Study browser displays list of studies from backend
-- [ ] Search filters work correctly (patient name, ID, date, modality)
-- [ ] Clicking a study loads the viewer
-- [ ] DICOM images display correctly in the viewer
-- [ ] Window/Level tool adjusts image brightness/contrast
-- [ ] Zoom tool magnifies/reduces image view
-- [ ] Pan tool moves the image within the viewport
-- [ ] Stack scroll navigates through series images
-- [ ] Image navigation buttons work correctly
+- [x] React application builds without errors
+- [x] Cornerstone.js initializes without console errors
+- [x] Study browser displays list of studies from backend
+- [x] Search filters work correctly (patient name, ID, date, modality)
+- [x] Clicking a study loads the viewer
+- [x] DICOM images display correctly in the viewer
+- [x] Window/Level tool adjusts image brightness/contrast
+- [x] Zoom tool magnifies/reduces image view
+- [x] Pan tool moves the image within the viewport
+- [x] Stack scroll navigates through series images
+- [x] Image navigation buttons work correctly
 
 #### Integration Requirements
-- [ ] Frontend can communicate with backend API
-- [ ] CORS is properly configured
+- [x] Frontend can communicate with backend API
+- [x] CORS is properly configured
 - [ ] Authentication tokens are handled (if implemented)
-- [ ] Error states are properly displayed to users
+- [x] Error states are properly displayed to users
 
 #### Performance Requirements
 - [ ] Single image loads in under 1 second
@@ -1634,28 +1634,28 @@ describe('StudyBrowser', () => {
 
 ### Documentation
 - [ ] Updated README with Phase 1 setup instructions
-- [ ] API documentation (OpenAPI/Swagger)
+- [x] API documentation (OpenAPI/Swagger)
 - [ ] Cornerstone.js integration guide
 - [ ] Development environment setup guide
 
 ### Code Deliverables
-- [ ] Backend Spring Boot application
-  - [ ] Health endpoint
-  - [ ] Study/Series/Instance controllers
-  - [ ] QIDO-RS client
-  - [ ] WADO-RS client
-  - [ ] Basic error handling
-- [ ] Frontend React application
-  - [ ] Study browser component
-  - [ ] DICOM viewer component
-  - [ ] Toolbar component
-  - [ ] API services
+- [x] Backend Spring Boot application
+  - [x] Health endpoint
+  - [x] Study/Series/Instance controllers
+  - [x] QIDO-RS client
+  - [x] WADO-RS client
+  - [x] Basic error handling
+- [x] Frontend React application
+  - [x] Study browser component
+  - [x] DICOM viewer component
+  - [x] Toolbar component
+  - [x] API services
 
 ### Infrastructure
-- [ ] Docker Compose configuration
-- [ ] Backend Dockerfile
-- [ ] Frontend Dockerfile
-- [ ] Test PACS (Orthanc) configuration
+- [x] Docker Compose configuration
+- [x] Backend Dockerfile
+- [x] Frontend Dockerfile
+- [x] Test PACS (Orthanc) configuration
 
 ### Testing
 - [ ] Backend unit tests (>70% coverage)
