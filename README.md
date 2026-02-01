@@ -80,7 +80,8 @@ java-dicom-viewer/
 │   │   │   │       └── security/       # Authentication/Authorization
 │   │   │   └── resources/
 │   │   └── test/
-│   └── pom.xml
+│   ├── build.gradle
+│   └── settings.gradle
 ├── frontend/                   # React frontend
 │   ├── src/
 │   │   ├── components/         # React components
@@ -114,7 +115,7 @@ cd java-dicom-viewer
 
 # Backend setup
 cd backend
-./mvnw spring-boot:run
+./gradlew bootRun
 
 # Frontend setup (in another terminal)
 cd frontend

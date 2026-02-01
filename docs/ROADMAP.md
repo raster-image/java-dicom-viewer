@@ -30,7 +30,7 @@ This document outlines the phased implementation plan for the Java DICOM Viewer 
 ### Week 1-2: Project Setup
 
 #### Backend Setup
-- [ ] Initialize Spring Boot 4.x project with Maven
+- [ ] Initialize Spring Boot 4.x project with Gradle
 - [ ] Configure Java 25 with appropriate compiler settings
 - [ ] Add dcm4che 5.x dependencies
 - [ ] Set up project structure (controllers, services, repositories)
