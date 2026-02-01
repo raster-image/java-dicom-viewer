@@ -135,6 +135,8 @@ docker-compose up -d
 - [Implementation Roadmap](docs/ROADMAP.md) - Phased development plan (7 phases)
 - [Phase 1 Implementation Guide](docs/PHASE1_IMPLEMENTATION.md) - Detailed Phase 1 specs with code examples
 - [Phase 2 Implementation Guide](docs/PHASE2_IMPLEMENTATION.md) - Detailed Phase 2 specs with code examples (Legacy PACS Support)
+- [Phase 3 Implementation Guide](docs/PHASE3_IMPLEMENTATION.md) - Detailed Phase 3 specs with code examples (Measurements, Annotations, Key Images)
+- [Phase 3 User Guide](docs/USER_GUIDE_PHASE3.md) - User guide for Phase 3 features
 - [Module Specifications](docs/MODULE_SPECIFICATIONS.md) - Detailed viewer module specifications
 - [API Documentation](docs/API.md) - REST API reference
 
@@ -144,7 +146,7 @@ docker-compose up -d
 |-------|----------|-------|--------|
 | 1 | 4-6 weeks | Foundation - Basic viewer, DICOMweb | ✅ Complete |
 | 2 | 3-4 weeks | Legacy PACS - C-FIND, C-MOVE, C-STORE | ✅ Complete |
-| 3 | 4-6 weeks | Core Viewer - Measurements, annotations, MPR | 📋 Planned |
+| 3 | 4-6 weeks | Core Viewer - Measurements, annotations, MPR | 🔄 In Progress |
 | 4 | 4-6 weeks | Advanced 2D - Image processing, workflow | 📋 Planned |
 | 5 | 6-8 weeks | 3D Reconstruction - Volume rendering, MIP | 📋 Planned |
 | 6 | 8-10 weeks | Clinical Modules - Cardiac, neuro, vascular | 📋 Planned |

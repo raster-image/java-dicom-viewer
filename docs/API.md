@@ -565,6 +565,505 @@ X-RateLimit-Reset: 1705319400
 
 ---
 
+## Phase 3: Measurements, Annotations & Key Images
+
+### Measurements
+
+#### Create Measurement
+```http
+POST /api/measurements
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "studyInstanceUid": "1.2.3.4.5",
+  "seriesInstanceUid": "1.2.3.4.5.6",
+  "sopInstanceUid": "1.2.3.4.5.6.7",
+  "frameIndex": 0,
+  "measurementType": "LENGTH",
+  "toolName": "Length",
+  "label": "Nodule diameter",
+  "value": 45.5,
+  "unit": "mm",
+  "pointsJson": "[{\"x\":100,\"y\":100},{\"x\":200,\"y\":200}]",
+  "roiStatsJson": null,
+  "color": "#00FF00",
+  "visible": true
+}
+
+Response 201:
+{
+  "id": "uuid",
+  "studyInstanceUid": "1.2.3.4.5",
+  "measurementType": "LENGTH",
+  "value": 45.5,
+  "unit": "mm",
+  "createdAt": "2024-01-15T10:30:00Z",
+  ...
+}
+```
+
+#### Get Measurement by ID
+```http
+GET /api/measurements/{id}
+Authorization: Bearer <token>
+
+Response 200:
+{
+  "id": "uuid",
+  "studyInstanceUid": "1.2.3.4.5",
+  "seriesInstanceUid": "1.2.3.4.5.6",
+  "sopInstanceUid": "1.2.3.4.5.6.7",
+  "measurementType": "LENGTH",
+  "toolName": "Length",
+  "value": 45.5,
+  "unit": "mm",
+  "pointsJson": "[{\"x\":100,\"y\":100},{\"x\":200,\"y\":200}]",
+  "visible": true,
+  "createdAt": "2024-01-15T10:30:00Z"
+}
+```
+
+#### Update Measurement
+```http
+PUT /api/measurements/{id}
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "label": "Updated label",
+  "value": 50.0,
+  "color": "#FF0000",
+  "visible": false
+}
+
+Response 200:
+{
+  "id": "uuid",
+  "label": "Updated label",
+  ...
+}
+```
+
+#### Delete Measurement
+```http
+DELETE /api/measurements/{id}
+Authorization: Bearer <token>
+
+Response 204: No Content
+```
+
+#### Get Measurements by Study
+```http
+GET /api/measurements/study/{studyInstanceUid}
+Authorization: Bearer <token>
+
+Query Parameters:
+- visibleOnly (boolean): Only return visible measurements (default: false)
+
+Response 200:
+{
+  "studyInstanceUid": "1.2.3.4.5",
+  "count": 3,
+  "measurements": [...]
+}
+```
+
+#### Get Measurements by Series
+```http
+GET /api/measurements/series/{seriesInstanceUid}
+Authorization: Bearer <token>
+
+Response 200:
+{
+  "seriesInstanceUid": "1.2.3.4.5.6",
+  "count": 2,
+  "measurements": [...]
+}
+```
+
+#### Get Measurements by Instance
+```http
+GET /api/measurements/instance/{sopInstanceUid}
+Authorization: Bearer <token>
+
+Query Parameters:
+- frameIndex (integer): Filter by frame index (optional)
+
+Response 200:
+{
+  "sopInstanceUid": "1.2.3.4.5.6.7",
+  "count": 1,
+  "measurements": [...]
+}
+```
+
+#### Toggle Measurement Visibility
+```http
+POST /api/measurements/{id}/toggle-visibility
+Authorization: Bearer <token>
+
+Response 200:
+{
+  "id": "uuid",
+  "visible": false,
+  ...
+}
+```
+
+#### Count Measurements by Study
+```http
+GET /api/measurements/study/{studyInstanceUid}/count
+Authorization: Bearer <token>
+
+Response 200:
+{
+  "studyInstanceUid": "1.2.3.4.5",
+  "count": 5
+}
+```
+
+#### Delete Measurements by Study
+```http
+DELETE /api/measurements/study/{studyInstanceUid}
+Authorization: Bearer <token>
+
+Response 204: No Content
+```
+
+---
+
+### Annotations
+
+#### Create Annotation
+```http
+POST /api/annotations
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "studyInstanceUid": "1.2.3.4.5",
+  "seriesInstanceUid": "1.2.3.4.5.6",
+  "sopInstanceUid": "1.2.3.4.5.6.7",
+  "frameIndex": 0,
+  "annotationType": "ARROW",
+  "toolName": "ArrowAnnotate",
+  "text": "Important finding",
+  "pointsJson": "[{\"x\":100,\"y\":100},{\"x\":200,\"y\":150}]",
+  "styleJson": null,
+  "color": "#FF0000",
+  "fontSize": 12,
+  "visible": true,
+  "locked": false
+}
+
+Response 201:
+{
+  "id": "uuid",
+  "annotationType": "ARROW",
+  "text": "Important finding",
+  "createdAt": "2024-01-15T10:30:00Z",
+  ...
+}
+```
+
+#### Get Annotation by ID
+```http
+GET /api/annotations/{id}
+Authorization: Bearer <token>
+
+Response 200:
+{
+  "id": "uuid",
+  "studyInstanceUid": "1.2.3.4.5",
+  "annotationType": "ARROW",
+  "text": "Important finding",
+  ...
+}
+```
+
+#### Update Annotation
+```http
+PUT /api/annotations/{id}
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "text": "Updated text",
+  "color": "#00FF00",
+  "visible": true,
+  "locked": true
+}
+
+Response 200:
+{
+  "id": "uuid",
+  "text": "Updated text",
+  ...
+}
+```
+
+#### Delete Annotation
+```http
+DELETE /api/annotations/{id}
+Authorization: Bearer <token>
+
+Response 204: No Content
+```
+
+#### Get Annotations by Study
+```http
+GET /api/annotations/study/{studyInstanceUid}
+Authorization: Bearer <token>
+
+Query Parameters:
+- visibleOnly (boolean): Only return visible annotations (default: false)
+
+Response 200:
+{
+  "studyInstanceUid": "1.2.3.4.5",
+  "count": 2,
+  "annotations": [...]
+}
+```
+
+#### Get Annotations by Instance
+```http
+GET /api/annotations/instance/{sopInstanceUid}
+Authorization: Bearer <token>
+
+Query Parameters:
+- frameIndex (integer): Filter by frame index (optional)
+
+Response 200:
+{
+  "sopInstanceUid": "1.2.3.4.5.6.7",
+  "count": 1,
+  "annotations": [...]
+}
+```
+
+#### Toggle Annotation Visibility
+```http
+POST /api/annotations/{id}/toggle-visibility
+Authorization: Bearer <token>
+
+Response 200:
+{
+  "id": "uuid",
+  "visible": false,
+  ...
+}
+```
+
+#### Toggle Annotation Lock
+```http
+POST /api/annotations/{id}/toggle-lock
+Authorization: Bearer <token>
+
+Response 200:
+{
+  "id": "uuid",
+  "locked": true,
+  ...
+}
+```
+
+#### Count Annotations by Study
+```http
+GET /api/annotations/study/{studyInstanceUid}/count
+Authorization: Bearer <token>
+
+Response 200:
+{
+  "studyInstanceUid": "1.2.3.4.5",
+  "count": 3
+}
+```
+
+---
+
+### Key Images
+
+#### Create Key Image
+```http
+POST /api/key-images
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "studyInstanceUid": "1.2.3.4.5",
+  "seriesInstanceUid": "1.2.3.4.5.6",
+  "sopInstanceUid": "1.2.3.4.5.6.7",
+  "frameIndex": 0,
+  "instanceNumber": 45,
+  "description": "Important finding",
+  "category": "findings",
+  "windowWidth": 400,
+  "windowCenter": 40
+}
+
+Response 201:
+{
+  "id": "uuid",
+  "sopInstanceUid": "1.2.3.4.5.6.7",
+  "description": "Important finding",
+  "createdAt": "2024-01-15T10:30:00Z",
+  ...
+}
+```
+
+#### Toggle Key Image (Mark/Unmark)
+```http
+POST /api/key-images/toggle
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "studyInstanceUid": "1.2.3.4.5",
+  "seriesInstanceUid": "1.2.3.4.5.6",
+  "sopInstanceUid": "1.2.3.4.5.6.7",
+  "frameIndex": 0
+}
+
+Response 200 (marked):
+{
+  "action": "added",
+  "isKeyImage": true,
+  "keyImage": {
+    "id": "uuid",
+    ...
+  }
+}
+
+Response 200 (unmarked):
+{
+  "action": "removed",
+  "isKeyImage": false
+}
+```
+
+#### Get Key Image by ID
+```http
+GET /api/key-images/{id}
+Authorization: Bearer <token>
+
+Response 200:
+{
+  "id": "uuid",
+  "studyInstanceUid": "1.2.3.4.5",
+  "sopInstanceUid": "1.2.3.4.5.6.7",
+  "description": "Important finding",
+  ...
+}
+```
+
+#### Update Key Image
+```http
+PUT /api/key-images/{id}
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "description": "Updated description",
+  "category": "critical"
+}
+
+Response 200:
+{
+  "id": "uuid",
+  "description": "Updated description",
+  ...
+}
+```
+
+#### Delete Key Image
+```http
+DELETE /api/key-images/{id}
+Authorization: Bearer <token>
+
+Response 204: No Content
+```
+
+#### Get Key Images by Study
+```http
+GET /api/key-images/study/{studyInstanceUid}
+Authorization: Bearer <token>
+
+Query Parameters:
+- category (string): Filter by category (optional)
+
+Response 200:
+{
+  "studyInstanceUid": "1.2.3.4.5",
+  "count": 3,
+  "keyImages": [...]
+}
+```
+
+#### Get Key Images by Series
+```http
+GET /api/key-images/series/{seriesInstanceUid}
+Authorization: Bearer <token>
+
+Response 200:
+{
+  "seriesInstanceUid": "1.2.3.4.5.6",
+  "count": 2,
+  "keyImages": [...]
+}
+```
+
+#### Check if Image is Key Image
+```http
+GET /api/key-images/check
+Authorization: Bearer <token>
+
+Query Parameters:
+- sopInstanceUid (string, required): SOP Instance UID
+- frameIndex (integer): Frame index (default: 0)
+
+Response 200:
+{
+  "sopInstanceUid": "1.2.3.4.5.6.7",
+  "frameIndex": 0,
+  "isKeyImage": true
+}
+```
+
+#### Count Key Images by Study
+```http
+GET /api/key-images/study/{studyInstanceUid}/count
+Authorization: Bearer <token>
+
+Response 200:
+{
+  "studyInstanceUid": "1.2.3.4.5",
+  "count": 5
+}
+```
+
+#### Delete Key Image by Instance
+```http
+DELETE /api/key-images/instance/{sopInstanceUid}
+Authorization: Bearer <token>
+
+Query Parameters:
+- frameIndex (integer): Frame index (default: 0)
+
+Response 204: No Content
+```
+
+#### Delete All Key Images by Study
+```http
+DELETE /api/key-images/study/{studyInstanceUid}
+Authorization: Bearer <token>
+
+Response 204: No Content
+```
+
+---
+
 ## Pagination
 
 List endpoints support pagination with `limit` and `offset` parameters.

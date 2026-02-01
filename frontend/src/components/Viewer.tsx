@@ -5,6 +5,8 @@ import * as cornerstone from '@cornerstonejs/core';
 import * as cornerstoneTools from '@cornerstonejs/tools';
 import { apiClient } from '../services/api';
 import { useCornerstone } from '../hooks/useCornerstone';
+import { useMeasurementPersistence } from '../hooks/useMeasurementPersistence';
+import { useAnnotationPersistence } from '../hooks/useAnnotationPersistence';
 import { Toolbar, ViewerTool, WindowLevelPreset } from './Toolbar';
 import type { Series, Instance, KeyImage } from '../types';
 
@@ -68,6 +70,32 @@ export default function Viewer() {
   const [showAnnotations, setShowAnnotations] = useState(true);
   const [isKeyImage, setIsKeyImage] = useState(false);
   const [measurementCount, setMeasurementCount] = useState(0);
+
+  // Phase 3: Measurement persistence hook
+  useMeasurementPersistence({
+    studyInstanceUid: studyInstanceUid || '',
+    seriesInstanceUid: viewerState.selectedSeriesUid,
+    onMeasurementSaved: () => {
+      // Invalidate measurements query to refresh count
+      queryClient.invalidateQueries({ queryKey: ['measurements', studyInstanceUid] });
+    },
+    onError: (error) => {
+      console.error('Failed to save measurement:', error);
+    },
+  });
+
+  // Phase 3: Annotation persistence hook
+  useAnnotationPersistence({
+    studyInstanceUid: studyInstanceUid || '',
+    seriesInstanceUid: viewerState.selectedSeriesUid,
+    onAnnotationSaved: () => {
+      // Invalidate annotations query to refresh count
+      queryClient.invalidateQueries({ queryKey: ['annotations', studyInstanceUid] });
+    },
+    onError: (error) => {
+      console.error('Failed to save annotation:', error);
+    },
+  });
 
   // Fetch series for the study
   const { data: seriesData, isLoading: isLoadingSeries } = useQuery({

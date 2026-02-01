@@ -376,8 +376,8 @@ describe('Measurement Tools', () => {
 - [x] MeasurementController REST endpoints
 - [x] AnnotationController REST endpoints
 - [x] KeyImageController REST endpoints
-- [ ] Unit tests for services
-- [ ] Integration tests for controllers
+- [x] Unit tests for services
+- [x] Integration tests for controllers
 
 ### Frontend
 
@@ -390,14 +390,14 @@ describe('Measurement Tools', () => {
 - [x] Key images panel in sidebar
 - [x] API client extended with Phase 3 endpoints
 - [x] TypeScript types for measurements and annotations
-- [ ] Measurement persistence to backend
-- [ ] Annotation persistence to backend
+- [x] Measurement persistence to backend
+- [x] Annotation persistence to backend
 
 ### Documentation
 
 - [x] PHASE3_IMPLEMENTATION.md created
-- [ ] API documentation updated
-- [ ] User guide for new features
+- [x] API documentation updated
+- [x] User guide for new features
 
 ---
 
