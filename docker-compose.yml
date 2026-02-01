@@ -1,0 +1,53 @@
+services:
+  # Backend Service
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+    ports:
+      - "8080:8080"
+      - "11112:11112"  # DICOM port
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - DICOM_STORAGE_PATH=/data/dicom
+    volumes:
+      - dicom-storage:/data/dicom
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend Service
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://backend:8080
+
+  # Test PACS (Orthanc) - Optional for development
+  orthanc:
+    image: orthancteam/orthanc:24.1.2
+    ports:
+      - "8042:8042"  # Web UI
+      - "4242:4242"  # DICOM
+    volumes:
+      - orthanc-storage:/var/lib/orthanc/db
+    environment:
+      - ORTHANC__DICOM_AET=ORTHANC
+      - ORTHANC__DICOM_WEB__ENABLE=true
+    profiles:
+      - test-pacs
+
+volumes:
+  dicom-storage:
+  orthanc-storage:
+
+networks:
+  default:
+    driver: bridge

@@ -1,0 +1,25 @@
+# Build stage
+FROM eclipse-temurin:21-jdk-alpine as build
+WORKDIR /app
+
+COPY backend/pom.xml .
+COPY backend/src ./src
+
+# Install Maven
+RUN apk add --no-cache maven
+
+# Build the application
+RUN mvn clean package -DskipTests
+
+# Runtime stage
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+
+COPY --from=build /app/target/*.jar app.jar
+
+# Create directory for DICOM storage
+RUN mkdir -p /data/dicom
+
+EXPOSE 8080 11112
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
