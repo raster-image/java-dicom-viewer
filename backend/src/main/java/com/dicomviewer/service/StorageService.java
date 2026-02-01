@@ -132,7 +132,7 @@ public class StorageService {
         Path studyDir = Paths.get(storagePath, studyInstanceUid);
         if (Files.exists(studyDir)) {
             Files.walk(studyDir)
-                .sorted((a, b) -> b.compareTo(a))
+                .sorted(java.util.Comparator.reverseOrder())
                 .forEach(path -> {
                     try {
                         Files.delete(path);
@@ -172,6 +172,10 @@ public class StorageService {
      * Storage statistics DTO.
      */
     public static class StorageStats {
+        private static final long KB = 1024L;
+        private static final long MB = KB * 1024L;
+        private static final long GB = MB * 1024L;
+
         private long totalInstances;
         private long totalSize;
         private long studyCount;
@@ -191,10 +195,10 @@ public class StorageService {
         public void setSeriesCount(long seriesCount) { this.seriesCount = seriesCount; }
         
         public String getFormattedSize() {
-            if (totalSize < 1024) return totalSize + " B";
-            if (totalSize < 1024 * 1024) return (totalSize / 1024) + " KB";
-            if (totalSize < 1024 * 1024 * 1024) return (totalSize / (1024 * 1024)) + " MB";
-            return (totalSize / (1024 * 1024 * 1024)) + " GB";
+            if (totalSize < KB) return totalSize + " B";
+            if (totalSize < MB) return (totalSize / KB) + " KB";
+            if (totalSize < GB) return (totalSize / MB) + " MB";
+            return (totalSize / GB) + " GB";
         }
     }
 }
