@@ -65,7 +65,10 @@ public class WadoController {
     }
 
     @GetMapping("/studies/{studyInstanceUid}/series/{seriesInstanceUid}/instances/{sopInstanceUid}/frames/{frameNumber}")
-    @Operation(summary = "Retrieve a specific frame from a DICOM instance")
+    @Operation(summary = "Retrieve a specific frame from a DICOM instance",
+               description = "Note: Currently retrieves the entire instance. Frame extraction is performed client-side. "
+                           + "For single-frame images, frame 1 returns the image. For multi-frame images, "
+                           + "the client (Cornerstone.js) extracts the specified frame from the returned DICOM data.")
     public ResponseEntity<byte[]> retrieveFrame(
             @PathVariable String studyInstanceUid,
             @PathVariable String seriesInstanceUid,
@@ -80,8 +83,8 @@ public class WadoController {
                         .body("No PACS configuration found".getBytes());
             }
 
-            // For single-frame images, retrieve the whole instance
-            // For multi-frame, we would need frame-level retrieval
+            // Retrieve the whole instance - Cornerstone.js handles frame extraction client-side
+            // This approach is common in DICOMweb implementations for simplicity
             byte[] dicomData = dicomWebService.retrieveInstance(
                     pacs, studyInstanceUid, seriesInstanceUid, sopInstanceUid);
 

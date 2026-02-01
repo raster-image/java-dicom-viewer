@@ -2,13 +2,31 @@ import React from 'react'
 
 export type ViewerTool = 'WindowLevel' | 'Pan' | 'Zoom' | 'StackScroll'
 
+export interface WindowLevelPreset {
+  name: string
+  windowWidth: number
+  windowCenter: number
+}
+
+export const WINDOW_LEVEL_PRESETS: Record<string, WindowLevelPreset> = {
+  'ct-abdomen': { name: 'CT Abdomen', windowWidth: 400, windowCenter: 50 },
+  'ct-lung': { name: 'CT Lung', windowWidth: 1500, windowCenter: -600 },
+  'ct-bone': { name: 'CT Bone', windowWidth: 2000, windowCenter: 500 },
+  'ct-brain': { name: 'CT Brain', windowWidth: 80, windowCenter: 40 },
+  'ct-soft-tissue': { name: 'CT Soft Tissue', windowWidth: 350, windowCenter: 50 },
+  'mr-t1': { name: 'MR T1', windowWidth: 500, windowCenter: 250 },
+  'mr-t2': { name: 'MR T2', windowWidth: 400, windowCenter: 200 },
+  'mr-flair': { name: 'MR FLAIR', windowWidth: 1200, windowCenter: 600 },
+}
+
 interface ToolbarProps {
   activeTool: ViewerTool
   onToolChange: (tool: ViewerTool) => void
-  currentImage: number
+  currentImage: number // 1-based display index
   totalImages: number
-  onNavigate: (index: number) => void
+  onNavigate: (index: number) => void // Expects 0-based index
   onReset: () => void
+  onPresetChange?: (preset: WindowLevelPreset) => void
 }
 
 interface ToolButton {
@@ -57,7 +75,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   totalImages,
   onNavigate,
   onReset,
+  onPresetChange,
 }) => {
+  const handlePresetChange = (presetKey: string) => {
+    const preset = WINDOW_LEVEL_PRESETS[presetKey]
+    if (preset && onPresetChange) {
+      onPresetChange(preset)
+    }
+  }
+  
   return (
     <div className="flex items-center justify-between p-2 bg-gray-800 border-b border-gray-700">
       {/* Tool buttons */}
@@ -90,7 +116,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         </button>
       </div>
 
-      {/* Navigation */}
+      {/* Navigation - currentImage is 1-based, onNavigate expects 0-based index */}
       <div className="flex items-center gap-2">
         <button
           onClick={() => onNavigate(currentImage - 2)}
@@ -118,8 +144,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         <select
           className="px-2 py-1 bg-gray-700 text-white rounded text-sm border border-gray-600"
           onChange={(e) => {
-            // Preset will be handled by parent component
-            console.log('Apply preset:', e.target.value)
+            if (e.target.value) {
+              handlePresetChange(e.target.value)
+            }
           }}
           defaultValue=""
         >

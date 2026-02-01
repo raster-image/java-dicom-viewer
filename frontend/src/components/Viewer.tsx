@@ -5,7 +5,7 @@ import * as cornerstone from '@cornerstonejs/core'
 import * as cornerstoneTools from '@cornerstonejs/tools'
 import { apiClient } from '../services/api'
 import { useCornerstone } from '../hooks/useCornerstone'
-import { Toolbar, ViewerTool } from './Toolbar'
+import { Toolbar, ViewerTool, WindowLevelPreset } from './Toolbar'
 import type { Series, Instance } from '../types'
 
 const TOOL_GROUP_ID = 'STACK_TOOL_GROUP'
@@ -192,24 +192,45 @@ export default function Viewer() {
     setActiveTool(tool)
   }, [activeTool])
 
-  // Navigate to specific image
+  // Navigate to specific image (index is 0-based)
   const handleNavigateImage = useCallback((index: number) => {
-    if (!viewport || !instancesData?.instances) return
+    if (!viewport || !viewerState.totalImages) return
     
-    const clampedIndex = Math.max(0, Math.min(index, instancesData.instances.length - 1))
+    const clampedIndex = Math.max(0, Math.min(index, viewerState.totalImages - 1))
     viewport.setImageIdIndex(clampedIndex)
     
     setViewerState(prev => ({
       ...prev,
       currentImageIndex: clampedIndex,
     }))
-  }, [viewport, instancesData])
+  }, [viewport, viewerState.totalImages])
 
   // Reset viewport
   const handleReset = useCallback(() => {
     if (!viewport) return
     viewport.resetCamera()
     viewport.render()
+  }, [viewport])
+
+  // Apply window/level preset
+  const handlePresetChange = useCallback((preset: WindowLevelPreset) => {
+    if (!viewport) return
+    
+    const properties = viewport.getProperties()
+    viewport.setProperties({
+      ...properties,
+      voiRange: {
+        lower: preset.windowCenter - preset.windowWidth / 2,
+        upper: preset.windowCenter + preset.windowWidth / 2,
+      },
+    })
+    viewport.render()
+    
+    setViewerState(prev => ({
+      ...prev,
+      windowWidth: preset.windowWidth,
+      windowCenter: preset.windowCenter,
+    }))
   }, [viewport])
 
   // Select series
@@ -255,6 +276,7 @@ export default function Viewer() {
         totalImages={viewerState.totalImages}
         onNavigate={handleNavigateImage}
         onReset={handleReset}
+        onPresetChange={handlePresetChange}
       />
 
       {/* Viewport Area */}
