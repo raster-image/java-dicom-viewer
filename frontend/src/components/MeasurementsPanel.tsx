@@ -6,9 +6,14 @@ import type { Measurement } from '../types';
 interface MeasurementsPanelProps {
   studyInstanceUid: string;
   currentSopInstanceUid?: string;
+  currentModality?: string;
 }
 
-export function MeasurementsPanel({ studyInstanceUid, currentSopInstanceUid }: MeasurementsPanelProps) {
+export function MeasurementsPanel({ 
+  studyInstanceUid, 
+  currentSopInstanceUid,
+  currentModality
+}: MeasurementsPanelProps) {
   const [expandedMeasurement, setExpandedMeasurement] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
@@ -56,6 +61,16 @@ export function MeasurementsPanel({ studyInstanceUid, currentSopInstanceUid }: M
   const formatValue = (measurement: Measurement): string => {
     if (measurement.value === undefined) return 'N/A';
     return `${measurement.value.toFixed(2)} ${measurement.unit || ''}`;
+  };
+
+  const formatStatValue = (value: number, statType: 'value' | 'area', modality?: string): string => {
+    // Only show HU (Hounsfield Units) for CT images
+    const unit = statType === 'value' && modality === 'CT' ? ' HU' : '';
+    return `${value.toFixed(2)}${unit}`;
+  };
+
+  const formatAreaValue = (value: number): string => {
+    return `${value.toFixed(2)} mm²`;
   };
 
   const getToolIcon = (toolName: string): string => {
@@ -123,12 +138,12 @@ export function MeasurementsPanel({ studyInstanceUid, currentSopInstanceUid }: M
                       ROI Statistics:
                     </div>
                     <div style={{ fontSize: '11px', color: '#b8c7db' }}>
-                      <div>Mean: {measurement.roiStats.mean.toFixed(2)} HU</div>
-                      <div>Std Dev: {measurement.roiStats.stdDev.toFixed(2)}</div>
-                      <div>Min: {measurement.roiStats.min.toFixed(2)} HU</div>
-                      <div>Max: {measurement.roiStats.max.toFixed(2)} HU</div>
+                      <div>Mean: {formatStatValue(measurement.roiStats.mean, 'value', currentModality)}</div>
+                      <div>Std Dev: {formatStatValue(measurement.roiStats.stdDev, 'value', currentModality)}</div>
+                      <div>Min: {formatStatValue(measurement.roiStats.min, 'value', currentModality)}</div>
+                      <div>Max: {formatStatValue(measurement.roiStats.max, 'value', currentModality)}</div>
                       {measurement.roiStats.area && (
-                        <div>Area: {measurement.roiStats.area.toFixed(2)} mm²</div>
+                        <div>Area: {formatAreaValue(measurement.roiStats.area)}</div>
                       )}
                     </div>
                   </div>
