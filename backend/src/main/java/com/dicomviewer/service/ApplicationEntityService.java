@@ -5,6 +5,7 @@ import com.dicomviewer.model.entity.ApplicationEntity.AEType;
 import com.dicomviewer.model.entity.ApplicationEntity.ConnectionStatus;
 import com.dicomviewer.repository.ApplicationEntityRepository;
 import com.dicomviewer.dicom.network.CEchoService;
+import com.dicomviewer.model.EchoResultDTO;
 import com.dicomviewer.model.PacsConfiguration;
 import com.dicomviewer.exception.AENotFoundException;
 import com.dicomviewer.exception.DuplicateAETitleException;
@@ -158,7 +159,7 @@ public class ApplicationEntityService {
     /**
      * Test connectivity to a remote AE using C-ECHO.
      */
-    public ConnectionStatus testConnection(Long aeId) {
+    public EchoResultDTO testConnectionDetailed(Long aeId) {
         ApplicationEntity ae = aeRepository.findById(aeId)
             .orElseThrow(() -> new AENotFoundException("AE with id " + aeId + " not found"));
 
@@ -170,6 +171,9 @@ public class ApplicationEntityService {
             ae.getAeTitle(), ae.getHostname(), ae.getPort());
 
         ConnectionStatus status;
+        long responseTimeMs = 0;
+        String message;
+
         try {
             // Convert ApplicationEntity to PacsConfiguration for the CEchoService
             PacsConfiguration pacsConfig = new PacsConfiguration();
@@ -179,9 +183,12 @@ public class ApplicationEntityService {
             
             CEchoService.EchoResult result = cechoService.echo(pacsConfig);
             status = result.isSuccess() ? ConnectionStatus.SUCCESS : ConnectionStatus.FAILED;
+            responseTimeMs = result.getResponseTimeMs();
+            message = result.getMessage();
         } catch (Exception e) {
             log.error("C-ECHO failed to {}: {}", ae.getAeTitle(), e.getMessage());
             status = ConnectionStatus.FAILED;
+            message = e.getMessage();
         }
 
         // Update AE with echo status
@@ -189,7 +196,23 @@ public class ApplicationEntityService {
         ae.setLastEchoTime(Instant.now());
         aeRepository.save(ae);
 
-        return status;
+        return new EchoResultDTO(
+            ae.getId(),
+            ae.getAeTitle(),
+            ae.getHostname(),
+            ae.getPort(),
+            status,
+            status == ConnectionStatus.SUCCESS,
+            responseTimeMs,
+            message
+        );
+    }
+
+    /**
+     * Test connectivity to a remote AE using C-ECHO (simple version).
+     */
+    public ConnectionStatus testConnection(Long aeId) {
+        return testConnectionDetailed(aeId).getStatus();
     }
 
     /**

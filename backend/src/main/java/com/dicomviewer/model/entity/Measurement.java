@@ -46,7 +46,7 @@ public class Measurement {
     @Column(name = "label")
     private String label;
 
-    @Column(name = "value")
+    @Column(name = "measurement_value")
     private Double value;
 
     @Column(name = "unit")

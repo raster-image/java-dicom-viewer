@@ -1,13 +1,10 @@
 package com.dicomviewer.config;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.dcm4che3.net.ApplicationEntity;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.TransferCapability;
-import org.dcm4che3.net.service.BasicCEchoSCP;
-import org.dcm4che3.net.service.DicomServiceRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,16 +32,52 @@ public class DicomConfig {
     @Value("${dicom.ae.port:11112}")
     private int aePort;
 
+    @Value("${dicom.ae.enabled:true}")
+    private boolean aeEnabled;
+
     private Device device;
     private ExecutorService executor;
     private ScheduledExecutorService scheduledExecutor;
 
     /**
      * Creates the DICOM device for this application.
+     * Only starts if dicom.ae.enabled=true
      */
     @Bean
-    public Device dicomDevice() {
+    public Device dicomDevice() throws IOException, GeneralSecurityException {
+        if (!aeEnabled) {
+            log.info("Local DICOM AE is disabled - skipping device initialization");
+            // Create minimal device without binding connections
+            device = new Device("dicom-viewer");
+            executor = Executors.newCachedThreadPool();
+            scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+            device.setExecutor(executor);
+            device.setScheduledExecutor(scheduledExecutor);
+
+            // Create connection but don't bind
+            Connection conn = new Connection();
+            conn.setPort(aePort);
+            conn.setHostname("0.0.0.0");
+            device.addConnection(conn);
+
+            // Create Application Entity (needed for outgoing connections)
+            ApplicationEntity ae = new ApplicationEntity(aeTitle);
+            ae.setAssociationAcceptor(false);
+            ae.setAssociationInitiator(true);
+            ae.addConnection(conn);
+            addTransferCapabilities(ae);
+            device.addApplicationEntity(ae);
+
+            return device;
+        }
         device = new Device("dicom-viewer");
+
+        // Initialize executor services
+        executor = Executors.newCachedThreadPool();
+        scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+
+        device.setExecutor(executor);
+        device.setScheduledExecutor(scheduledExecutor);
 
         // Create connection for incoming associations
         Connection conn = new Connection();
@@ -63,10 +96,17 @@ public class DicomConfig {
 
         device.addApplicationEntity(ae);
 
-        // Set up DICOM service registry
-        DicomServiceRegistry serviceRegistry = new DicomServiceRegistry();
-        serviceRegistry.addDicomService(new BasicCEchoSCP());
-        device.setDimseRQHandler(serviceRegistry);
+        // Note: Service registry setup removed as BasicCEchoSCP and DicomServiceRegistry
+        // are not available in dcm4che 5.x. Custom DIMSE handlers can be added as needed.
+
+        // Bind connections
+        try {
+            device.bindConnections();
+            log.info("DICOM device started - AE Title: {}, Port: {}", aeTitle, aePort);
+        } catch (IOException | GeneralSecurityException e) {
+            log.error("Failed to bind DICOM device connections", e);
+            throw e;
+        }
 
         return device;
     }
@@ -152,27 +192,16 @@ public class DicomConfig {
         }
     }
 
-    @PostConstruct
-    public void startDevice() {
-        try {
-            executor = Executors.newCachedThreadPool();
-            scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-
-            device.setExecutor(executor);
-            device.setScheduledExecutor(scheduledExecutor);
-            device.bindConnections();
-
-            log.info("DICOM device started - AE Title: {}, Port: {}", aeTitle, aePort);
-        } catch (IOException | GeneralSecurityException e) {
-            log.error("Failed to start DICOM device", e);
-        }
-    }
 
     @PreDestroy
     public void stopDevice() {
         if (device != null) {
-            device.unbindConnections();
-            log.info("DICOM device stopped");
+            try {
+                device.unbindConnections();
+                log.info("DICOM device stopped");
+            } catch (Exception e) {
+                log.warn("Error unbinding DICOM device connections: {}", e.getMessage());
+            }
         }
         if (executor != null) {
             executor.shutdown();

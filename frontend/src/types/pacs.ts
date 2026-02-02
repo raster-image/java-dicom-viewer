@@ -44,12 +44,18 @@ export interface AERequest {
 }
 
 /**
- * Connection test result
+ * Connection test result with detailed echo information
  */
 export interface ConnectionTestResult {
   aeId: number;
+  aeTitle?: string;
+  hostname?: string;
+  port?: number;
   status: ConnectionStatus;
   success: boolean;
+  responseTimeMs?: number;
+  message?: string;
+  timestamp?: string;
 }
 
 /**

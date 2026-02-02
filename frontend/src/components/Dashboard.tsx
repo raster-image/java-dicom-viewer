@@ -40,6 +40,12 @@ export default function Dashboard() {
               Browse Studies
             </a>
             <a
+              href="/pacs-explorer"
+              className="block w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-center"
+            >
+              PACS Explorer
+            </a>
+            <a
               href="/settings"
               className="block w-full bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-500 text-center"
             >

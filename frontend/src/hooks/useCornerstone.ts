@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { RenderingEngine, Enums, init as csInit } from '@cornerstonejs/core';
 import * as cornerstoneTools from '@cornerstonejs/tools';
-// @ts-expect-error - dicom-image-loader doesn't have type definitions
-import cornerstoneDICOMImageLoader from '@cornerstonejs/dicom-image-loader';
+import * as cornerstoneDICOMImageLoader from '@cornerstonejs/dicom-image-loader';
 import dicomParser from 'dicom-parser';
 
 const {

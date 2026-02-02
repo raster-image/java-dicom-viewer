@@ -16,6 +16,7 @@ java {
 repositories {
     mavenCentral()
     maven { url 'https://www.dcm4che.org/maven2' }
+    maven { url 'https://raw.github.com/nroduit/mvn-repo/master/' }
 }
 
 ext {
@@ -35,6 +36,8 @@ dependencies {
     // Database
     runtimeOnly 'com.h2database:h2'
     runtimeOnly 'org.postgresql:postgresql'
+    implementation 'org.flywaydb:flyway-core'
+    runtimeOnly 'org.flywaydb:flyway-database-postgresql'
 
     // dcm4che DICOM Library
     implementation "org.dcm4che:dcm4che-core:${dcm4cheVersion}"
@@ -56,6 +59,9 @@ dependencies {
 
     // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.boot:spring-boot-test'
+    testImplementation 'org.springframework.boot:spring-boot-test-autoconfigure'
+    testImplementation 'org.springframework.boot:spring-boot-webmvc-test'
     testImplementation 'org.springframework.security:spring-security-test'
 }
 

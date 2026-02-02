@@ -4,6 +4,7 @@ import Dashboard from './components/Dashboard';
 import StudyBrowser from './components/StudyBrowser';
 import Viewer from './components/Viewer';
 import Settings from './components/Settings';
+import PACSExplorer from './components/PACSExplorer';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="studies" element={<StudyBrowser />} />
           <Route path="viewer/:studyInstanceUid" element={<Viewer />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="pacs-explorer" element={<PACSExplorer />} />
         </Route>
       </Routes>
     </BrowserRouter>

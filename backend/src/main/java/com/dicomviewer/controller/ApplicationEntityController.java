@@ -1,7 +1,7 @@
 package com.dicomviewer.controller;
 
+import com.dicomviewer.model.EchoResultDTO;
 import com.dicomviewer.model.entity.ApplicationEntity;
-import com.dicomviewer.model.entity.ApplicationEntity.ConnectionStatus;
 import com.dicomviewer.service.ApplicationEntityService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -67,13 +67,9 @@ public class ApplicationEntityController {
 
     @PostMapping("/{id}/test")
     @Operation(summary = "Test connectivity to remote AE using C-ECHO")
-    public ResponseEntity<Map<String, Object>> testConnection(@PathVariable Long id) {
-        ConnectionStatus status = aeService.testConnection(id);
-        return ResponseEntity.ok(Map.of(
-            "aeId", id,
-            "status", status.name(),
-            "success", status == ConnectionStatus.SUCCESS
-        ));
+    public ResponseEntity<EchoResultDTO> testConnection(@PathVariable Long id) {
+        EchoResultDTO result = aeService.testConnectionDetailed(id);
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/test-all")

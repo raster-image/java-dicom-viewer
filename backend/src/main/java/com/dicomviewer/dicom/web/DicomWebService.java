@@ -38,7 +38,7 @@ public class DicomWebService {
             throw new IllegalArgumentException("QIDO-RS URL not configured for PACS: " + pacsConfig.getName());
         }
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(qidoUrl + "/studies");
+        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(qidoUrl + "/studies");
 
         // Add query parameters
         queryParams.forEach((key, value) -> {

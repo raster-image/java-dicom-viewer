@@ -34,9 +34,18 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: true,
     target: 'esnext',
+    commonjsOptions: {
+      include: [/node_modules/],
+      transformMixedEsModules: true,
+    },
   },
   optimizeDeps: {
-    exclude: ['@cornerstonejs/dicom-image-loader'],
+    include: [
+      '@cornerstonejs/core',
+      '@cornerstonejs/tools',
+      '@cornerstonejs/dicom-image-loader',
+      'dicom-parser',
+    ],
     esbuildOptions: {
       target: 'esnext',
     },
