@@ -10,6 +10,8 @@ import { useAnnotationPersistence } from '../hooks/useAnnotationPersistence';
 import { useMeasurementLoader } from '../hooks/useMeasurementLoader';
 import { useAnnotationLoader } from '../hooks/useAnnotationLoader';
 import { Toolbar, ViewerTool, WindowLevelPreset } from './Toolbar';
+import { MeasurementsPanel } from './MeasurementsPanel';
+import { AnnotationsPanel } from './AnnotationsPanel';
 import type { Series, Instance, KeyImage } from '../types';
 
 const TOOL_GROUP_ID = 'STACK_TOOL_GROUP';
@@ -531,6 +533,26 @@ export default function Viewer() {
                     </button>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Measurements Panel */}
+            {measurementCount > 0 && studyInstanceUid && (
+              <div className="mt-4">
+                <MeasurementsPanel 
+                  studyInstanceUid={studyInstanceUid} 
+                  currentSopInstanceUid={viewerState.currentSopInstanceUid || undefined}
+                />
+              </div>
+            )}
+
+            {/* Annotations Panel */}
+            {studyInstanceUid && (
+              <div className="mt-4">
+                <AnnotationsPanel 
+                  studyInstanceUid={studyInstanceUid} 
+                  currentSopInstanceUid={viewerState.currentSopInstanceUid || undefined}
+                />
               </div>
             )}
           </div>
