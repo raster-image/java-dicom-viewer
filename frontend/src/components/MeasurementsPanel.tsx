@@ -9,6 +9,40 @@ interface MeasurementsPanelProps {
   currentModality?: string;
 }
 
+// Helper functions for formatting measurement values (defined outside component to avoid re-creation on each render)
+
+const formatValue = (measurement: Measurement): string => {
+  if (measurement.value === undefined) return 'N/A';
+  return `${measurement.value.toFixed(2)} ${measurement.unit || ''}`;
+};
+
+const formatStatValue = (value: number, modality?: string): string => {
+  // Only show HU (Hounsfield Units) for CT images
+  const unit = modality === 'CT' ? ' HU' : '';
+  return `${value.toFixed(2)}${unit}`;
+};
+
+const formatStdDevValue = (value: number): string => {
+  // Standard deviation is unitless (represents variability)
+  return value.toFixed(2);
+};
+
+const formatAreaValue = (value: number): string => {
+  return `${value.toFixed(2)} mm²`;
+};
+
+const getToolIcon = (toolName: string): string => {
+  const icons: Record<string, string> = {
+    Length: '📏',
+    Angle: '📐',
+    CobbAngle: '📐',
+    RectangleROI: '▭',
+    EllipticalROI: '⬭',
+    Probe: '🎯',
+  };
+  return icons[toolName] || '📊';
+};
+
 export function MeasurementsPanel({ 
   studyInstanceUid, 
   currentSopInstanceUid,
@@ -57,38 +91,6 @@ export function MeasurementsPanel({
       </div>
     );
   }
-
-  const formatValue = (measurement: Measurement): string => {
-    if (measurement.value === undefined) return 'N/A';
-    return `${measurement.value.toFixed(2)} ${measurement.unit || ''}`;
-  };
-
-  const formatStatValue = (value: number, modality?: string): string => {
-    // Only show HU (Hounsfield Units) for CT images
-    const unit = modality === 'CT' ? ' HU' : '';
-    return `${value.toFixed(2)}${unit}`;
-  };
-
-  const formatStdDevValue = (value: number): string => {
-    // Standard deviation is unitless (represents variability)
-    return value.toFixed(2);
-  };
-
-  const formatAreaValue = (value: number): string => {
-    return `${value.toFixed(2)} mm²`;
-  };
-
-  const getToolIcon = (toolName: string): string => {
-    const icons: Record<string, string> = {
-      Length: '📏',
-      Angle: '📐',
-      CobbAngle: '📐',
-      RectangleROI: '▭',
-      EllipticalROI: '⬭',
-      Probe: '🎯',
-    };
-    return icons[toolName] || '📊';
-  };
 
   return (
     <div style={{ padding: '8px', maxHeight: '400px', overflowY: 'auto' }}>
