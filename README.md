@@ -146,7 +146,7 @@ docker-compose up -d
 |-------|----------|-------|--------|
 | 1 | 4-6 weeks | Foundation - Basic viewer, DICOMweb | ✅ Complete |
 | 2 | 3-4 weeks | Legacy PACS - C-FIND, C-MOVE, C-STORE | ✅ Complete |
-| 3 | 4-6 weeks | Core Viewer - Measurements, annotations, MPR | 🔄 In Progress |
+| 3 | 4-6 weeks | Core Viewer - Measurements, annotations, MPR | ✅ Complete |
 | 4 | 4-6 weeks | Advanced 2D - Image processing, workflow | 📋 Planned |
 | 5 | 6-8 weeks | 3D Reconstruction - Volume rendering, MIP | 📋 Planned |
 | 6 | 8-10 weeks | Clinical Modules - Cardiac, neuro, vascular | 📋 Planned |

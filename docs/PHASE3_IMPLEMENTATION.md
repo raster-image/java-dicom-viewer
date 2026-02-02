@@ -81,7 +81,7 @@ This document provides detailed technical specifications, step-by-step implement
 - [x] Integrate Cornerstone LengthTool
 - [x] Display measurement value with units (mm)
 - [x] Implement measurement persistence to backend
-- [ ] Support measurement editing and deletion
+- [x] Support measurement editing and deletion
 
 **Frontend Implementation:**
 
@@ -122,7 +122,7 @@ Content-Type: application/json
 **Tasks:**
 - [x] Integrate Cornerstone AngleTool
 - [x] Display angle in degrees
-- [ ] Support angle editing
+- [x] Support angle editing
 
 ```typescript
 import { AngleTool } from '@cornerstonejs/tools';
@@ -135,7 +135,7 @@ toolGroup.addTool(AngleTool.toolName);
 
 **Tasks:**
 - [x] Integrate Cornerstone CobbAngleTool
-- [ ] Display spinal curvature measurement
+- [x] Display spinal curvature measurement
 
 ```typescript
 import { CobbAngleTool } from '@cornerstonejs/tools';
@@ -150,8 +150,8 @@ toolGroup.addTool(CobbAngleTool.toolName);
 
 **Tasks:**
 - [x] Integrate RectangleROITool
-- [ ] Display statistics (mean, std dev, min, max, area)
-- [ ] Display Hounsfield units for CT
+- [x] Display statistics (mean, std dev, min, max, area)
+- [x] Display Hounsfield units for CT
 
 ```typescript
 import { RectangleROITool } from '@cornerstonejs/tools';
@@ -163,7 +163,7 @@ cornerstoneTools.addTool(RectangleROITool);
 
 **Tasks:**
 - [x] Integrate EllipticalROITool
-- [ ] Display ROI statistics
+- [x] Display ROI statistics
 
 ```typescript
 import { EllipticalROITool } from '@cornerstonejs/tools';
@@ -175,7 +175,7 @@ cornerstoneTools.addTool(EllipticalROITool);
 
 **Tasks:**
 - [x] Integrate ProbeTool
-- [ ] Display HU values for CT images
+- [x] Display HU values for CT images
 
 ```typescript
 import { ProbeTool } from '@cornerstonejs/tools';
@@ -191,8 +191,8 @@ cornerstoneTools.addTool(ProbeTool);
 
 **Tasks:**
 - [x] Integrate ArrowAnnotateTool
-- [ ] Support custom arrow styles
-- [ ] Persist annotations to backend
+- [x] Support custom arrow styles
+- [x] Persist annotations to backend
 
 ```typescript
 import { ArrowAnnotateTool } from '@cornerstonejs/tools';
@@ -204,8 +204,8 @@ cornerstoneTools.addTool(ArrowAnnotateTool);
 
 **Tasks:**
 - [x] Basic text annotation support (using PlanarFreehandROITool as fallback)
-- [ ] Custom font size and color
-- [ ] Text positioning and editing
+- [x] Custom font size and color
+- [x] Text positioning and editing
 
 ### 3. Annotation Management
 
@@ -276,14 +276,14 @@ DELETE /api/key-images/{id}
 - [x] Length tool measures distances with ±1mm accuracy
 - [x] Angle tool measures angles with ±0.5° accuracy
 - [x] ROI tools display area in mm²
-- [ ] All measurements persist to backend
-- [ ] Measurements load correctly when reopening study
+- [x] All measurements persist to backend
+- [x] Measurements load correctly when reopening study
 
 ### Annotation Tools
 - [x] Arrow annotations can be created
-- [ ] Text annotations can be created and edited
-- [ ] Annotations persist to backend
-- [ ] Annotation visibility can be toggled
+- [x] Text annotations can be created and edited
+- [x] Annotations persist to backend
+- [x] Annotation visibility can be toggled
 
 ### Key Image Marking
 - [x] Images can be marked/unmarked as key images
