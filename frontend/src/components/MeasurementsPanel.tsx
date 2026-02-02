@@ -63,10 +63,15 @@ export function MeasurementsPanel({
     return `${measurement.value.toFixed(2)} ${measurement.unit || ''}`;
   };
 
-  const formatStatValue = (value: number, statType: 'value' | 'area', modality?: string): string => {
+  const formatStatValue = (value: number, modality?: string): string => {
     // Only show HU (Hounsfield Units) for CT images
-    const unit = statType === 'value' && modality === 'CT' ? ' HU' : '';
+    const unit = modality === 'CT' ? ' HU' : '';
     return `${value.toFixed(2)}${unit}`;
+  };
+
+  const formatStdDevValue = (value: number): string => {
+    // Standard deviation is unitless (represents variability)
+    return value.toFixed(2);
   };
 
   const formatAreaValue = (value: number): string => {
@@ -138,10 +143,10 @@ export function MeasurementsPanel({
                       ROI Statistics:
                     </div>
                     <div style={{ fontSize: '11px', color: '#b8c7db' }}>
-                      <div>Mean: {formatStatValue(measurement.roiStats.mean, 'value', currentModality)}</div>
-                      <div>Std Dev: {formatStatValue(measurement.roiStats.stdDev, 'value', currentModality)}</div>
-                      <div>Min: {formatStatValue(measurement.roiStats.min, 'value', currentModality)}</div>
-                      <div>Max: {formatStatValue(measurement.roiStats.max, 'value', currentModality)}</div>
+                      <div>Mean: {formatStatValue(measurement.roiStats.mean, currentModality)}</div>
+                      <div>Std Dev: {formatStdDevValue(measurement.roiStats.stdDev)}</div>
+                      <div>Min: {formatStatValue(measurement.roiStats.min, currentModality)}</div>
+                      <div>Max: {formatStatValue(measurement.roiStats.max, currentModality)}</div>
                       {measurement.roiStats.area && (
                         <div>Area: {formatAreaValue(measurement.roiStats.area)}</div>
                       )}
