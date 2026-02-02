@@ -7,7 +7,11 @@ import { apiClient } from '../services/api';
 import { useCornerstone } from '../hooks/useCornerstone';
 import { useMeasurementPersistence } from '../hooks/useMeasurementPersistence';
 import { useAnnotationPersistence } from '../hooks/useAnnotationPersistence';
+import { useMeasurementLoader } from '../hooks/useMeasurementLoader';
+import { useAnnotationLoader } from '../hooks/useAnnotationLoader';
 import { Toolbar, ViewerTool, WindowLevelPreset } from './Toolbar';
+import { MeasurementsPanel } from './MeasurementsPanel';
+import { AnnotationsPanel } from './AnnotationsPanel';
 import type { Series, Instance, KeyImage } from '../types';
 
 const TOOL_GROUP_ID = 'STACK_TOOL_GROUP';
@@ -69,7 +73,6 @@ export default function Viewer() {
   const [viewport, setViewport] = useState<cornerstone.Types.IStackViewport | null>(null);
   const [showAnnotations, setShowAnnotations] = useState(true);
   const [isKeyImage, setIsKeyImage] = useState(false);
-  const [measurementCount, setMeasurementCount] = useState(0);
 
   // Phase 3: Measurement persistence hook
   useMeasurementPersistence({
@@ -119,11 +122,18 @@ export default function Viewer() {
     enabled: !!studyInstanceUid,
   });
 
-  // Fetch measurements for the study
-  const { data: measurementsData } = useQuery({
-    queryKey: ['measurements', studyInstanceUid],
-    queryFn: () => apiClient.getMeasurementsByStudy(studyInstanceUid || ''),
+  // Load and restore measurements when study is opened
+  const { count: measurementCount } = useMeasurementLoader({
+    studyInstanceUid: studyInstanceUid || '',
     enabled: !!studyInstanceUid,
+    toolGroupId: TOOL_GROUP_ID,
+  });
+
+  // Load and restore annotations when study is opened
+  useAnnotationLoader({
+    studyInstanceUid: studyInstanceUid || '',
+    enabled: !!studyInstanceUid,
+    toolGroupId: TOOL_GROUP_ID,
   });
 
   // Toggle key image mutation
@@ -134,13 +144,6 @@ export default function Viewer() {
       queryClient.invalidateQueries({ queryKey: ['keyImages', studyInstanceUid] });
     },
   });
-
-  // Update measurement count when data changes
-  useEffect(() => {
-    if (measurementsData?.count !== undefined) {
-      setMeasurementCount(measurementsData.count);
-    }
-  }, [measurementsData]);
 
   // Check if current image is a key image
   useEffect(() => {
@@ -530,6 +533,26 @@ export default function Viewer() {
                     </button>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Measurements Panel */}
+            {measurementCount > 0 && studyInstanceUid && (
+              <div className="mt-4">
+                <MeasurementsPanel 
+                  studyInstanceUid={studyInstanceUid} 
+                  currentSopInstanceUid={viewerState.currentSopInstanceUid || undefined}
+                />
+              </div>
+            )}
+
+            {/* Annotations Panel */}
+            {studyInstanceUid && (
+              <div className="mt-4">
+                <AnnotationsPanel 
+                  studyInstanceUid={studyInstanceUid} 
+                  currentSopInstanceUid={viewerState.currentSopInstanceUid || undefined}
+                />
               </div>
             )}
           </div>
