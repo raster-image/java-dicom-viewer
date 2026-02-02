@@ -4,6 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../services/api';
 import type { Annotation } from '../types';
 
+// Delay in milliseconds to wait for viewport to be ready before restoring annotations
+// This ensures the rendering engine and viewports are fully initialized
+const VIEWPORT_READY_DELAY_MS = 500;
+
 interface UseAnnotationLoaderProps {
   studyInstanceUid: string;
   enabled?: boolean;
@@ -69,7 +73,7 @@ export function useAnnotationLoader({
     };
 
     // Delay restoration to ensure viewport is ready
-    const timer = setTimeout(restoreAnnotations, 500);
+    const timer = setTimeout(restoreAnnotations, VIEWPORT_READY_DELAY_MS);
 
     return () => clearTimeout(timer);
   }, [annotationsData, studyInstanceUid, toolGroupId]);

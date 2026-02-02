@@ -4,6 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '../services/api';
 import type { Measurement } from '../types';
 
+// Delay in milliseconds to wait for viewport to be ready before restoring measurements
+// This ensures the rendering engine and viewports are fully initialized
+const VIEWPORT_READY_DELAY_MS = 500;
+
 interface UseMeasurementLoaderProps {
   studyInstanceUid: string;
   enabled?: boolean;
@@ -73,7 +77,7 @@ export function useMeasurementLoader({
     };
 
     // Delay restoration to ensure viewport is ready
-    const timer = setTimeout(restoreMeasurements, 500);
+    const timer = setTimeout(restoreMeasurements, VIEWPORT_READY_DELAY_MS);
 
     return () => clearTimeout(timer);
   }, [measurementsData, studyInstanceUid, toolGroupId]);
@@ -87,7 +91,13 @@ export function useMeasurementLoader({
 }
 
 /**
- * Build WADO-RS image ID from DICOM UIDs
+ * Build WADO-RS image ID from DICOM UIDs.
+ * 
+ * @param studyUid - Study Instance UID
+ * @param seriesUid - Series Instance UID
+ * @param sopUid - SOP Instance UID
+ * @param frameIndex - Zero-based frame index (converted to 1-based for WADO-RS)
+ * @returns WADO-RS URL format image ID
  */
 function buildImageId(
   studyUid: string,
@@ -99,11 +109,19 @@ function buildImageId(
   return `wadors:/api/wado/studies/${studyUid}/series/${seriesUid}/instances/${sopUid}/frames/${frame}`;
 }
 
+// Type for Cornerstone tool classes
+type ToolClass = typeof cornerstoneTools.LengthTool 
+  | typeof cornerstoneTools.AngleTool 
+  | typeof cornerstoneTools.CobbAngleTool 
+  | typeof cornerstoneTools.RectangleROITool 
+  | typeof cornerstoneTools.EllipticalROITool 
+  | typeof cornerstoneTools.ProbeTool;
+
 /**
  * Get Cornerstone tool class by name
  */
-function getToolClass(toolName: string): any {
-  const toolMap: Record<string, any> = {
+function getToolClass(toolName: string): ToolClass | undefined {
+  const toolMap: Record<string, ToolClass> = {
     Length: cornerstoneTools.LengthTool,
     Angle: cornerstoneTools.AngleTool,
     CobbAngle: cornerstoneTools.CobbAngleTool,
