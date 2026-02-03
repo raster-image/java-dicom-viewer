@@ -542,6 +542,11 @@ export default function Viewer() {
                 <MeasurementsPanel 
                   studyInstanceUid={studyInstanceUid} 
                   currentSopInstanceUid={viewerState.currentSopInstanceUid || undefined}
+                  currentModality={
+                    seriesData?.series?.find(
+                      (s: Series) => s.SeriesInstanceUID === viewerState.selectedSeriesUid
+                    )?.Modality
+                  }
                 />
               </div>
             )}

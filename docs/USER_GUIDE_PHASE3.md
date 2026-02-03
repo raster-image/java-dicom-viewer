@@ -58,10 +58,13 @@ The viewer provides several measurement tools for clinical use. All measurements
 2. Click and drag to draw a rectangle over the area of interest
 3. Statistics displayed include:
    - Mean (average pixel value)
-   - Standard Deviation
+   - Standard Deviation  
    - Minimum and Maximum values
    - Area in mm²
-   - For CT images: Hounsfield Units (HU)
+   - **For CT images only**: Values shown in Hounsfield Units (HU)
+   - **For other modalities (MR, US, etc.)**: Raw pixel values
+
+**Note**: The statistics are displayed both as an overlay on the image and in the expandable Measurements panel on the left sidebar.
 
 ### Elliptical ROI (⬭)
 
@@ -73,7 +76,10 @@ The viewer provides several measurement tools for clinical use. All measurements
 3. Statistics displayed include:
    - Mean, Standard Deviation, Min/Max values
    - Area in mm²
-   - For CT images: HU values
+   - **For CT images only**: HU values
+   - **For other modalities**: Raw pixel values
+
+**Note**: Elliptical ROIs are useful for measuring circular or oval-shaped regions, such as lesions or anatomical structures.
 
 ### Probe Tool (✚)
 
