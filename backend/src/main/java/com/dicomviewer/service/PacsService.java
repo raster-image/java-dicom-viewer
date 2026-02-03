@@ -44,6 +44,13 @@ public class PacsService {
     }
 
     /**
+     * Get all PACS configurations.
+     */
+    public List<PacsConfiguration> getAllPacsConfigurations() {
+        return pacsConfigRepository.findAll();
+    }
+
+    /**
      * Get all active PACS configurations.
      */
     public List<PacsConfiguration> getActivePacsConfigurations() {

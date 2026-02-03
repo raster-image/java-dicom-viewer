@@ -30,8 +30,11 @@ public class PacsController {
 
     @GetMapping
     @Operation(summary = "List all PACS configurations")
-    public ResponseEntity<Map<String, Object>> listPacs() {
-        List<PacsConfiguration> configurations = pacsService.getActivePacsConfigurations();
+    public ResponseEntity<Map<String, Object>> listPacs(
+            @RequestParam(value = "activeOnly", required = false, defaultValue = "false") boolean activeOnly) {
+        List<PacsConfiguration> configurations = activeOnly
+            ? pacsService.getActivePacsConfigurations()
+            : pacsService.getAllPacsConfigurations();
         return ResponseEntity.ok(Map.of("configurations", configurations));
     }
 
