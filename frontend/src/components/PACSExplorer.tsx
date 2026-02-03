@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { pacsService } from '../services/pacsService';
+import { apiClient } from '../services/api';
 import type { ApplicationEntity, ConnectionStatus } from '../types/pacs';
 
 interface EchoResult {
@@ -28,6 +29,8 @@ export const PACSExplorer: React.FC<PACSExplorerProps> = ({ onClose }) => {
   const [autoRefresh, setAutoRefresh] = useState(false);
   const [refreshInterval, setRefreshInterval] = useState(30);
   const [filterStatus, setFilterStatus] = useState<'all' | 'success' | 'failed' | 'unknown'>('all');
+  const [addingToPacsIds, setAddingToPacsIds] = useState<Set<number>>(new Set());
+  const [addedToPacsIds, setAddedToPacsIds] = useState<Set<number>>(new Set());
 
   // Load AEs on mount
   useEffect(() => {
@@ -106,11 +109,16 @@ export const PACSExplorer: React.FC<PACSExplorerProps> = ({ onClose }) => {
       setAeList((prev) =>
         prev.map((item) =>
           item.id === ae.id
-            ? { ...item, lastEchoStatus: result.status as ConnectionStatus, lastEchoTime: echoResult.timestamp }
+            ? {
+                ...item,
+                lastEchoStatus: result.status as ConnectionStatus,
+                lastEchoTime: echoResult.timestamp,
+              }
             : item
         )
       );
-    } catch (err: any) {
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Connection test failed';
       const echoResult: EchoResult = {
         aeId: ae.id,
         aeTitle: ae.aeTitle,
@@ -118,7 +126,7 @@ export const PACSExplorer: React.FC<PACSExplorerProps> = ({ onClose }) => {
         port: ae.port,
         status: 'FAILED',
         success: false,
-        message: err.message || 'Connection test failed',
+        message: errorMessage,
         timestamp: new Date().toISOString(),
       };
       setEchoResults((prev) => new Map(prev).set(ae.id, echoResult));
@@ -147,6 +155,47 @@ export const PACSExplorer: React.FC<PACSExplorerProps> = ({ onClose }) => {
     }
 
     setIsTestingAll(false);
+  };
+
+  const addToPacsConfiguration = async (ae: ApplicationEntity) => {
+    try {
+      setAddingToPacsIds((prev) => new Set(prev).add(ae.id));
+      setError(null);
+
+      // Convert AE to PACS Configuration format
+      const pacsConfig = {
+        name: ae.description || `${ae.aeTitle} - ${ae.hostname}`,
+        host: ae.hostname,
+        port: ae.port,
+        aeTitle: ae.aeTitle,
+        pacsType: ae.aeType === 'REMOTE_DICOMWEB' ? ('DICOMWEB' as const) : ('LEGACY' as const),
+        wadoRsUrl: ae.dicomWebUrl || undefined,
+        qidoRsUrl: ae.dicomWebUrl || undefined,
+        stowRsUrl: ae.dicomWebUrl || undefined,
+        isActive: ae.enabled,
+      };
+
+      await apiClient.createPacs(pacsConfig);
+      setAddedToPacsIds((prev) => new Set(prev).add(ae.id));
+
+      // Show success message
+      setTimeout(() => {
+        setAddedToPacsIds((prev) => {
+          const next = new Set(prev);
+          next.delete(ae.id);
+          return next;
+        });
+      }, 3000);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      setError(`Failed to add ${ae.aeTitle} to PACS configurations: ${errorMessage}`);
+    } finally {
+      setAddingToPacsIds((prev) => {
+        const next = new Set(prev);
+        next.delete(ae.id);
+        return next;
+      });
+    }
   };
 
   const getStatusBadge = (status?: ConnectionStatus, isLoading = false) => {
@@ -254,7 +303,9 @@ export const PACSExplorer: React.FC<PACSExplorerProps> = ({ onClose }) => {
     total: aeList.length,
     enabled: aeList.filter((ae) => ae.enabled).length,
     connected: Array.from(echoResults.values()).filter((r) => r.status === 'SUCCESS').length,
-    failed: Array.from(echoResults.values()).filter((r) => r.status === 'FAILED' || r.status === 'TIMEOUT').length,
+    failed: Array.from(echoResults.values()).filter(
+      (r) => r.status === 'FAILED' || r.status === 'TIMEOUT'
+    ).length,
   };
 
   if (isLoading) {
@@ -274,7 +325,9 @@ export const PACSExplorer: React.FC<PACSExplorerProps> = ({ onClose }) => {
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-white">PACS Explorer</h1>
-          <p className="text-gray-400 mt-1">Browse and test connectivity to PACS servers using DICOM C-ECHO</p>
+          <p className="text-gray-400 mt-1">
+            Browse and test connectivity to PACS servers using DICOM C-ECHO
+          </p>
         </div>
         {onClose && (
           <button
@@ -284,6 +337,30 @@ export const PACSExplorer: React.FC<PACSExplorerProps> = ({ onClose }) => {
             Close
           </button>
         )}
+      </div>
+
+      {/* Quick Add Info Banner */}
+      <div className="bg-blue-900/30 border border-blue-700/50 rounded-lg p-4 mb-6">
+        <div className="flex items-start gap-3">
+          <svg
+            className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <div>
+            <h3 className="text-blue-300 font-semibold text-sm">Quick Add to Study Browser</h3>
+            <p className="text-blue-200 text-sm mt-1">
+              Click the <strong>"Quick Add"</strong> button on any remote PACS to instantly add it to your Study
+              Browser PACS configurations. This allows you to query and retrieve studies without manual setup.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -482,10 +559,12 @@ export const PACSExplorer: React.FC<PACSExplorerProps> = ({ onClose }) => {
                         <p className="text-gray-400 text-sm mt-1">
                           {ae.hostname}:{ae.port}
                         </p>
-                        {ae.description && <p className="text-gray-500 text-sm mt-1">{ae.description}</p>}
+                        {ae.description && (
+                          <p className="text-gray-500 text-sm mt-1">{ae.description}</p>
+                        )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                       {getStatusBadge(result?.status || ae.lastEchoStatus, isTesting)}
                       <button
                         onClick={() => testConnection(ae)}
@@ -494,6 +573,62 @@ export const PACSExplorer: React.FC<PACSExplorerProps> = ({ onClose }) => {
                       >
                         {isTesting ? 'Testing...' : 'Test'}
                       </button>
+                      {ae.aeType !== 'LOCAL' && (
+                        <button
+                          onClick={() => addToPacsConfiguration(ae)}
+                          disabled={addingToPacsIds.has(ae.id) || addedToPacsIds.has(ae.id)}
+                          className={`px-3 py-1.5 text-sm rounded transition-colors flex items-center gap-1.5 ${
+                            addedToPacsIds.has(ae.id)
+                              ? 'bg-green-600 text-white cursor-default'
+                              : 'bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed'
+                          }`}
+                          title="Add to Studies PACS configuration"
+                        >
+                          {addingToPacsIds.has(ae.id) ? (
+                            <>
+                              <svg className="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                />
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                />
+                              </svg>
+                              Adding...
+                            </>
+                          ) : addedToPacsIds.has(ae.id) ? (
+                            <>
+                              <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                  fillRule="evenodd"
+                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                              Added!
+                            </>
+                          ) : (
+                            <>
+                              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M12 4v16m8-8H4"
+                                />
+                              </svg>
+                              Quick Add
+                            </>
+                          )}
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -570,8 +705,13 @@ export const PACSExplorer: React.FC<PACSExplorerProps> = ({ onClose }) => {
         </div>
         <div className="mt-4 pt-4 border-t border-gray-700">
           <p className="text-gray-400 text-sm">
-            <strong className="text-white">C-ECHO</strong> (Verification SOP Class) is used to test connectivity to DICOM Application Entities.
-            A successful C-ECHO indicates that the remote PACS is reachable and responding to DICOM network requests.
+            <strong className="text-white">C-ECHO</strong> (Verification SOP Class) is used to test
+            connectivity to DICOM Application Entities. A successful C-ECHO indicates that the
+            remote PACS is reachable and responding to DICOM network requests.
+          </p>
+          <p className="text-gray-400 text-sm mt-2">
+            <strong className="text-white">Quick Add:</strong> Clicking the "Quick Add" button on any remote PACS will automatically create a PACS configuration
+            for the Study Browser, allowing you to query and retrieve studies with a single click.
           </p>
         </div>
       </div>

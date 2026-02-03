@@ -82,7 +82,7 @@ INSERT INTO application_entities (
     'ORTHANC',
     'localhost',
     4242,
-    'DICOMWEB',
+    'REMOTE_DICOMWEB',
     'Orthanc DICOM Web server',
     'http://localhost:8042/dicom-web',
     'STUDY',

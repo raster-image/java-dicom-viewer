@@ -18,7 +18,7 @@ export const api = axios.create({
 export const apiClient = {
   // Health
   getHealth: async () => {
-    const response = await api.get('/health');
+    const response = await api.get('/actuator/health');
     return response.data;
   },
 

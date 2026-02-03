@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { apiClient } from '../services/api';
@@ -16,10 +16,27 @@ export default function StudyBrowser() {
   });
 
   // Fetch PACS configurations
-  const { data: pacsData } = useQuery({
+  const {
+    data: pacsData,
+    isLoading: isPacsLoading,
+    error: pacsError,
+  } = useQuery({
     queryKey: ['pacs'],
     queryFn: () => apiClient.getPacsConfigurations(),
   });
+
+  // Auto-select first active PACS if none selected
+  useEffect(() => {
+    if (pacsData?.configurations && !selectedPacs) {
+      // Try to find default PACS first, otherwise use first active one
+      const defaultPacs = pacsData.configurations.find((p: PacsConfiguration) => p.isActive);
+      if (defaultPacs) {
+        setSelectedPacs(defaultPacs.id);
+      } else if (pacsData.configurations.length > 0) {
+        setSelectedPacs(pacsData.configurations[0].id);
+      }
+    }
+  }, [pacsData, selectedPacs]);
 
   // Fetch studies when PACS is selected
   const {
@@ -44,6 +61,40 @@ export default function StudyBrowser() {
     <div className="p-6">
       <h1 className="text-2xl font-bold text-white mb-6">Study Browser</h1>
 
+      {/* No PACS Configured Warning */}
+      {!isPacsLoading &&
+        !pacsError &&
+        (!pacsData?.configurations || pacsData.configurations.length === 0) && (
+          <div className="bg-yellow-900/50 border border-yellow-700 rounded-lg p-4 mb-6">
+            <div className="flex items-start gap-3">
+              <svg
+                className="h-6 w-6 text-yellow-400 mt-0.5"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <div>
+                <h3 className="text-yellow-300 font-semibold">No PACS Configured</h3>
+                <p className="text-yellow-200 text-sm mt-1">
+                  You need to configure at least one PACS connection before you can browse studies.
+                  Go to Settings to add a PACS configuration.
+                </p>
+                <button
+                  onClick={() => navigate('/settings')}
+                  className="mt-3 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 text-sm"
+                >
+                  Go to Settings
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
       {/* Search Filters */}
       <div className="bg-gray-800 rounded-lg p-4 mb-6 border border-gray-700">
         <div className="grid grid-cols-1 md:grid-cols-6 gap-4">
@@ -54,14 +105,24 @@ export default function StudyBrowser() {
               className="w-full bg-gray-700 text-white rounded px-3 py-2 border border-gray-600"
               value={selectedPacs}
               onChange={(e) => setSelectedPacs(e.target.value)}
+              disabled={isPacsLoading}
             >
-              <option value="">Select PACS...</option>
+              <option value="">
+                {isPacsLoading
+                  ? 'Loading PACS...'
+                  : pacsError
+                    ? 'Error loading PACS'
+                    : 'Select PACS...'}
+              </option>
               {pacsData?.configurations?.map((pacs: PacsConfiguration) => (
                 <option key={pacs.id} value={pacs.id}>
                   {pacs.name} ({pacs.pacsType})
                 </option>
               ))}
             </select>
+            {pacsError && (
+              <p className="text-red-400 text-xs mt-1">Failed to load PACS configurations</p>
+            )}
           </div>
 
           {/* Patient ID */}
